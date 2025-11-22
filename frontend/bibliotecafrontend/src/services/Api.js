@@ -1,9 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  // Se houver uma variável de ambiente (na Vercel), usa ela.
-  // Caso contrário (no seu PC), usa o localhost.
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
+  // CORREÇÃO: Para Create React App, usamos process.env.REACT_APP_...
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000",
 });
 
 api.interceptors.request.use(
