@@ -23,8 +23,8 @@ const Home = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                // Fundo consistente com Login/Cadastro
-                backgroundImage: 'url("/fundo_biblioteca.png")',
+                // MUDANÇA AQUI: Nome da nova imagem
+                backgroundImage: 'url("/background_home.png")', 
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 position: 'relative',
@@ -32,14 +32,13 @@ const Home = () => {
                     content: '""',
                     position: 'absolute',
                     top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Um pouco mais escuro para destacar o texto branco
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)', 
                     zIndex: 0
                 }
             }}
         >
             <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
                 
-                {/* Ícone de destaque (Logotipo) */}
                 <LocalLibraryIcon sx={{ fontSize: 80, color: 'primary.main', mb: 2 }} />
 
                 <Typography 
@@ -62,7 +61,6 @@ const Home = () => {
                     Gerencie acervos, empréstimos e leitores de forma simples, rápida e moderna.
                 </Typography>
 
-                {/* Botões de Ação */}
                 <Stack spacing={2} direction="column" sx={{ maxWidth: '300px', mx: 'auto' }}>
                     <Button
                         variant="contained"
@@ -94,7 +92,6 @@ const Home = () => {
                     </Button>
                 </Stack>
 
-                {/* Rodapé simples */}
                 <Box mt={8} pt={4} borderTop="1px solid rgba(255,255,255,0.1)">
                     <Typography variant="caption" color="grey.500">
                         © 2025 Sistema de Biblioteca - Projeto de Extensão

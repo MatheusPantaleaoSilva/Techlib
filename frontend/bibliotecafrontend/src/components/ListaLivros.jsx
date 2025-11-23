@@ -16,16 +16,25 @@ import {
   Chip,
   TextField,
   InputAdornment,
-  Pagination // <--- Componente novo
+  Pagination,
+  IconButton,
 } from "@mui/material";
+
+// Ícones
 import SearchIcon from '@mui/icons-material/Search';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 const ListaLivros = () => {
   const [livros, setLivros] = useState([]);
   
-  // Estados de Paginação e Busca
+  // Estados de Filtros
   const [busca, setBusca] = useState("");
+  const [mostrarFavoritos, setMostrarFavoritos] = useState(false); // Toggle filtro
+  const [meusFavoritosIds, setMeusFavoritosIds] = useState([]); // Lista de IDs favoritados (1, 5, 9)
+
+  // Paginação
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   
@@ -38,14 +47,15 @@ const ListaLivros = () => {
 
   const PLACEHOLDER_IMG = "https://via.placeholder.com/300x450?text=Sem+Capa";
 
-  // Função de carregamento (reutilizável)
-  const fetchLivros = async (pagina, termo) => {
+  // --- Funções de Carregamento ---
+
+  // 1. Carrega os livros (com ou sem filtro de favoritos)
+  const fetchLivros = async (pagina, termo, apenasFav) => {
     setLoading(true);
     try {
-      // Envia página e termo de busca para o backend
-      const response = await api.get(`/livros?page=${pagina}&per_page=8&q=${termo}`);
+      const endpoint = `/livros?page=${pagina}&per_page=8&q=${termo}&apenas_favoritos=${apenasFav}`;
+      const response = await api.get(endpoint);
       
-      // O Backend agora retorna { livros: [], total_paginas: X, ... }
       setLivros(response.data.livros);
       setTotalPages(response.data.total_paginas);
     } catch (error) {
@@ -56,17 +66,35 @@ const ListaLivros = () => {
     }
   };
 
-  // Efeito para carregar quando a página ou busca mudam
+  // 2. Carrega APENAS os IDs que o usuário favoritou (para pintar o coração)
+  const fetchMeusFavoritosIds = async () => {
+    try {
+      const res = await api.get("/livros/meus-favoritos-ids");
+      setMeusFavoritosIds(res.data); // Ex: [1, 4, 10]
+    } catch (error) {
+      console.error("Erro ao carregar favoritos:", error);
+    }
+  };
+
+  // --- Efeitos ---
+
+  // Carrega IDs dos favoritos uma vez na montagem
   useEffect(() => {
-    // Pequeno delay na busca para não chamar a API a cada letra (debounce simples)
+    fetchMeusFavoritosIds();
+  }, []);
+
+  // Recarrega livros sempre que mudar página, busca ou o filtro "mostrarFavoritos"
+  useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      fetchLivros(page, busca);
-    }, 300); 
+      fetchLivros(page, busca, mostrarFavoritos);
+    }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [page, busca]);
+  }, [page, busca, mostrarFavoritos]);
 
-  // Reseta para a página 1 quando o usuário começa a pesquisar
+
+  // --- Handlers ---
+
   const handleBuscaChange = (e) => {
     setBusca(e.target.value);
     setPage(1); 
@@ -74,8 +102,35 @@ const ListaLivros = () => {
 
   const handlePageChange = (event, value) => {
     setPage(value);
-    // Scroll suave para o topo ao mudar de página
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const toggleFiltroFavoritos = () => {
+    setMostrarFavoritos(!mostrarFavoritos);
+    setPage(1); // Volta pra pagina 1 ao mudar o modo
+  };
+
+  // Ação de clicar no Coração
+  const handleFavoritar = async (id) => {
+    try {
+      // Chama API
+      await api.post(`/livros/${id}/favoritar`);
+      
+      // Atualiza estado local visualmente (sem precisar recarregar tudo)
+      if (meusFavoritosIds.includes(id)) {
+        // Se já estava, remove
+        setMeusFavoritosIds(prev => prev.filter(favId => favId !== id));
+        // Se estamos no modo "Só Favoritos", remove o livro da lista visualmente também
+        if (mostrarFavoritos) {
+          setLivros(prev => prev.filter(l => l.id !== id));
+        }
+      } else {
+        // Se não estava, adiciona
+        setMeusFavoritosIds(prev => [...prev, id]);
+      }
+    } catch (error) {
+      console.error("Erro ao favoritar:", error);
+    }
   };
 
   const handleEditar = (id) => {
@@ -89,21 +144,34 @@ const ListaLivros = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       
+      {/* Cabeçalho */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
         <Typography variant="h4" component="h2" fontWeight="bold" color="primary">
-          Catálogo de Livros
+          {mostrarFavoritos ? "Meus Favoritos" : "Catálogo de Livros"}
         </Typography>
         
-        {isFuncionario && (
-          <Button 
-            variant="contained" 
-            color="success" 
-            onClick={handleNovoLivro}
-            sx={{ fontWeight: 'bold' }}
-          >
-            + Novo Livro
-          </Button>
-        )}
+        <Box display="flex" gap={2}>
+            {/* Botão de Toggle Favoritos */}
+            <Button 
+                variant={mostrarFavoritos ? "contained" : "outlined"} 
+                color="error" 
+                onClick={toggleFiltroFavoritos}
+                startIcon={mostrarFavoritos ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+            >
+                {mostrarFavoritos ? "Ver Todos" : "Meus Favoritos"}
+            </Button>
+
+            {isFuncionario && (
+            <Button 
+                variant="contained" 
+                color="success" 
+                onClick={handleNovoLivro}
+                sx={{ fontWeight: 'bold' }}
+            >
+                + Novo Livro
+            </Button>
+            )}
+        </Box>
       </Box>
 
       {/* Barra de Busca */}
@@ -134,13 +202,22 @@ const ListaLivros = () => {
       ) : (
         <>
           {!erro && livros.length === 0 && (
-            <Alert severity="info">Nenhum livro encontrado na sua pesquisa.</Alert>
+            <Alert severity="info">
+                {mostrarFavoritos 
+                    ? "Você ainda não tem livros favoritos." 
+                    : "Nenhum livro encontrado na sua pesquisa."}
+            </Alert>
           )}
 
           <Grid container spacing={3}>
             {livros.map((livro) => {
-              const estoque = livro.quantidade || 0;
-              const disponivel = estoque > 0;
+              // Lógica de Disponibilidade
+              const total = livro.quantidade || 0;
+              const disponiveis = livro.quantidade_disponivel !== undefined ? livro.quantidade_disponivel : total;
+              const estaDisponivel = disponiveis > 0;
+              
+              // Verifica se este livro está na lista de favoritos do usuário
+              const isFavorito = meusFavoritosIds.includes(livro.id);
 
               return (
                 <Grid item key={livro.id} xs={12} sm={6} md={4} lg={3}>
@@ -149,11 +226,25 @@ const ListaLivros = () => {
                       height: '100%', 
                       display: 'flex', 
                       flexDirection: 'column',
+                      position: 'relative', // Para posicionar o coração
                       transition: 'transform 0.2s',
                       '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
-                      opacity: disponivel ? 1 : 0.8 
+                      opacity: estaDisponivel ? 1 : 0.8
                     }}
                   >
+                    {/* Botão de Favoritar Flutuante na Capa */}
+                    <Box sx={{ position: 'absolute', top: 10, right: 10, zIndex: 10 }}>
+                        <IconButton 
+                            onClick={() => handleFavoritar(livro.id)}
+                            sx={{ 
+                                backgroundColor: 'rgba(255,255,255,0.7)', 
+                                '&:hover': { backgroundColor: 'white' } 
+                            }}
+                        >
+                            {isFavorito ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon color="action" />}
+                        </IconButton>
+                    </Box>
+
                     <CardMedia
                       component="img"
                       height="250"
@@ -175,16 +266,16 @@ const ListaLivros = () => {
                           {isFuncionario ? (
                             <Chip 
                               icon={<Inventory2Icon fontSize="small" />}
-                              label={`${estoque} ex.`} 
+                              label={`${disponiveis}/${total} ex.`} 
                               size="small" 
-                              color={disponivel ? "default" : "error"}
+                              color={estaDisponivel ? "default" : "error"}
                             />
                           ) : (
                             <Chip 
-                              label={disponivel ? "Disponível" : "Esgotado"} 
+                              label={estaDisponivel ? "Disponível" : "Esgotado"} 
                               size="small" 
-                              color={disponivel ? "success" : "error"}
-                              variant={disponivel ? "filled" : "outlined"}
+                              color={estaDisponivel ? "success" : "error"}
+                              variant={estaDisponivel ? "filled" : "outlined"}
                             />
                           )}
                       </Box>
@@ -216,7 +307,7 @@ const ListaLivros = () => {
             })}
           </Grid>
 
-          {/* PAGINAÇÃO */}
+          {/* Paginação */}
           {totalPages > 1 && (
             <Box display="flex" justifyContent="center" mt={5}>
               <Pagination 

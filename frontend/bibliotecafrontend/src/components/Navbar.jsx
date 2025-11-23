@@ -20,8 +20,9 @@ export default function Navbar() {
   };
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: '#2c3e50' }}> {/* Usei uma cor mais escura */}
+    <AppBar position="static" sx={{ backgroundColor: '#2c3e50' }}>
       <Toolbar>
+        {/* O botão "Biblioteca" já serve como Home/Dashboard */}
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           <Button color="inherit" component={Link} to={isAuthenticated ? "/dashboard" : "/"} sx={{ fontSize: '1.1rem' }}>
             Biblioteca
@@ -42,9 +43,8 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <Button color="inherit" component={Link} to="/dashboard">
-              Dashboard
-            </Button>
+            {/* REMOVIDO O BOTÃO DASHBOARD REDUNDANTE DAQUI */}
+            
             <Button color="inherit" component={Link} to="/livros">
               Livros
             </Button>
@@ -67,8 +67,8 @@ export default function Navbar() {
             <Button color="inherit" component={Link} to="/perfil">
               Perfil
             </Button>
-            <Button color="inherit" onClick={handleLogout} sx={{ color: '#ff8a80' }}> {/* Botão de Sair em destaque */}
-              Logout
+            <Button color="inherit" onClick={handleLogout} sx={{ color: '#ff8a80' }}>
+              Sair
             </Button>
           </>
         )}

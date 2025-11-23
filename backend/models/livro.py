@@ -14,6 +14,12 @@ class Livro(db.Model):
     quantidade = db.Column(db.Integer, nullable=False, default=1)
 
     def mostrar_dados(self):
+        from models.emprestimo import Emprestimo
+
+        qtd_emprestados = Emprestimo.query.filter_by(livro_id=self.id, data_devolucao=None).count()
+        
+        disponiveis = self.quantidade - qtd_emprestados
+
         return {
             "id": self.id,
             "nome": self.nome,
@@ -23,5 +29,6 @@ class Livro(db.Model):
             "categoria_nome": self.categoria_obj.nome if self.categoria_obj else "Sem Categoria",
             "data_aquisicao": self.data_aquisicao.isoformat() if self.data_aquisicao else None,
             "imagem_url": self.imagem_url,
-            "quantidade": self.quantidade
+            "quantidade": self.quantidade,           # Total no acervo
+            "quantidade_disponivel": disponiveis     # O que está na estante agora
         }

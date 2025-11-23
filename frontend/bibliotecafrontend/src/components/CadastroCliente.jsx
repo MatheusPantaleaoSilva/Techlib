@@ -16,13 +16,12 @@ import {
   CircularProgress
 } from '@mui/material';
 
-// Ícones para os campos
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
-import BadgeIcon from '@mui/icons-material/Badge'; // Para CPF
+import BadgeIcon from '@mui/icons-material/Badge';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LockIcon from '@mui/icons-material/Lock';
-import CakeIcon from '@mui/icons-material/Cake'; // Para Idade
+import CakeIcon from '@mui/icons-material/Cake';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 
 const CadastroCliente = () => {
@@ -40,7 +39,6 @@ const CadastroCliente = () => {
     
     const navigate = useNavigate();
 
-    // Máscara de CPF
     const handleCpfChange = (e) => {
         let value = e.target.value.replace(/\D/g, ""); 
         value = value.replace(/(\d{3})(\d)/, "$1.$2"); 
@@ -50,7 +48,6 @@ const CadastroCliente = () => {
         setCpf(value);
     };
 
-    // Máscara de Telefone
     const handlePhoneChange = (e) => {
         let value = e.target.value.replace(/\D/g, ""); 
         value = value.replace(/^(\d{2})(\d)/g, "($1) $2"); 
@@ -78,7 +75,6 @@ const CadastroCliente = () => {
         
         try {
             setLoading(true);
-            // Envia os dados limpos (sem máscaras) para a API
             await api.post('/auth/registrar', {
                 nome: name,
                 email: email,
@@ -113,7 +109,8 @@ const CadastroCliente = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundImage: 'url("/fundo_biblioteca.png")',
+                // MUDANÇA AQUI: Nome da nova imagem
+                backgroundImage: 'url("/background_home.png")',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 position: 'relative',
@@ -156,7 +153,6 @@ const CadastroCliente = () => {
                         <form onSubmit={handleRegister}>
                             <Grid container spacing={2}>
                                 
-                                {/* 1. Nome Completo (Linha inteira) */}
                                 <Grid item xs={12}>
                                     <TextField
                                         label="Nome Completo"
@@ -170,7 +166,6 @@ const CadastroCliente = () => {
                                     />
                                 </Grid>
 
-                                {/* 2. CPF e Idade (Lado a lado em telas grandes) */}
                                 <Grid item xs={12} sm={8}>
                                     <TextField
                                         label="CPF"
@@ -198,7 +193,6 @@ const CadastroCliente = () => {
                                     />
                                 </Grid>
 
-                                {/* 3. Email (Linha inteira) */}
                                 <Grid item xs={12}>
                                     <TextField
                                         label="Email"
@@ -213,7 +207,6 @@ const CadastroCliente = () => {
                                     />
                                 </Grid>
 
-                                {/* 4. Telefone (Linha inteira) */}
                                 <Grid item xs={12}>
                                     <TextField
                                         label="Telefone"
@@ -228,7 +221,6 @@ const CadastroCliente = () => {
                                     />
                                 </Grid>
 
-                                {/* 5. Senhas (Lado a lado) */}
                                 <Grid item xs={12} sm={6}>
                                     <TextField
                                         label="Senha"
@@ -256,8 +248,7 @@ const CadastroCliente = () => {
                                     />
                                 </Grid>
 
-                                {/* 6. Botão Finalizar (NOVA LINHA ABAIXO DE TUDO) */}
-                                <Grid item xs={12} sx={{ mt: 2 }}> {/* Margem no topo para separar */}
+                                <Grid item xs={12} sx={{ mt: 2 }}> 
                                     <Button
                                         type="submit"
                                         fullWidth

@@ -15,7 +15,6 @@ import {
   CircularProgress
 } from '@mui/material';
 
-// Ícones
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import LoginIcon from '@mui/icons-material/Login';
@@ -64,8 +63,8 @@ const Login = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                // Fundo com imagem e overlay escuro
-                backgroundImage: 'url("/fundo_biblioteca.png")',
+                // MUDANÇA AQUI: Nome da nova imagem
+                backgroundImage: 'url("/background_home.png")', 
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 position: 'relative',
@@ -73,7 +72,7 @@ const Login = () => {
                     content: '""',
                     position: 'absolute',
                     top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Overlay escuro
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
                     zIndex: 0
                 }
             }}
@@ -84,7 +83,7 @@ const Login = () => {
                     sx={{ 
                         p: 2, 
                         borderRadius: 3,
-                        backgroundColor: 'rgba(255, 255, 255, 0.9)', // Vidro fosco claro
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)', 
                         backdropFilter: 'blur(10px)'
                     }}
                 >

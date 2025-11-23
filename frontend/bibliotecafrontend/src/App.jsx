@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { ThemeProvider, CssBaseline } from "@mui/material"; // <--- IMPORT NOVO
-import theme from "./theme"; // <--- IMPORT NOVO
+import { ThemeProvider, CssBaseline, Box } from "@mui/material"; // Typography não é mais necessário aqui se só usar imagem
+import theme from "./theme";
 
 import Dashboard from "./components/DashBoard";
 import ListaPessoas from "./components/ListaPessoas";
@@ -37,20 +37,17 @@ const PrivateRoute = ({ children, role }) => {
 };
 
 const App = () => (
-  // Envolvemos tudo com o ThemeProvider
   <ThemeProvider theme={theme}>
-    <CssBaseline /> {/* Reseta o CSS do navegador para ficar igual em todo lado */}
+    <CssBaseline />
     <Router>
       <Navbar />
       <Routes>
-        {/* Página inicial pública */}
+        {/* Rota Pública */}
         <Route path="/" element={<Home />} />
-
-        {/* Login / Registro */}
         <Route path="/login" element={<Login />} />
         <Route path="/registrar" element={<CadastroCliente />} />
 
-        {/* Dashboard protegido */}
+        {/* Rotas Protegidas */}
         <Route
           path="/dashboard"
           element={
@@ -59,6 +56,8 @@ const App = () => (
             </PrivateRoute>
           }
         />
+        
+        {/* Rotas de Funcionário */}
         <Route
           path="/emprestimos"
           element={
@@ -67,8 +66,6 @@ const App = () => (
             </PrivateRoute>
           }
         />
-
-        {/* Pessoas */}
         <Route
           path="/pessoas"
           element={
@@ -85,8 +82,24 @@ const App = () => (
             </PrivateRoute>
           }
         />
+        <Route
+          path="/indicacoes"
+          element={
+            <PrivateRoute role="FUNCIONARIO">
+              <GerenciarIndicacoes />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/categorias"
+          element={
+            <PrivateRoute role="FUNCIONARIO">
+              <GerenciarCategorias />
+            </PrivateRoute>
+          }
+        />
 
-        {/* Livros */}
+        {/* Rotas Comuns (Livros) */}
         <Route
           path="/livros"
           element={
@@ -112,6 +125,7 @@ const App = () => (
           }
         />
 
+        {/* Perfil */}
         <Route
           path="/perfil"
           element={
@@ -120,7 +134,6 @@ const App = () => (
             </PrivateRoute>
           }
         />
-
         <Route
           path="/perfil/editar"
           element={
@@ -130,28 +143,30 @@ const App = () => (
           }
         />
 
-        <Route
-          path="/indicacoes"
-          element={
-            <PrivateRoute role="FUNCIONARIO">
-              <GerenciarIndicacoes />
-            </PrivateRoute>
-          }
-        />
-
-        {/* Categorias */}
-        <Route
-          path="/categorias"
-          element={
-            <PrivateRoute role="FUNCIONARIO">
-              <GerenciarCategorias />
-            </PrivateRoute>
-          }
-        />
-
-        {/* Rota coringa */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+
+      {/* --- MARCA D'ÁGUA COM IMAGEM --- */}
+      <Box
+        component="img"
+        src="/marca_dagua.png"  // <--- NOME DO ARQUIVO NA PASTA PUBLIC
+        alt="Logo"
+        sx={{
+          position: 'fixed',
+          bottom: 20,
+          right: 20,
+          height: 60,            // Ajuste o tamanho da imagem aqui
+          width: 'auto',         // Mantém a proporção
+          opacity: 0.5,          // Transparência (0.1 a 1.0)
+          pointerEvents: 'none', // Permite clicar através da imagem
+          zIndex: 9999,
+          userSelect: 'none',
+          // Opcional: filtro para deixar preto e branco se quiser
+          // filter: 'grayscale(100%)' 
+        }}
+      />
+      {/* ------------------------------- */}
+
     </Router>
   </ThemeProvider>
 );
