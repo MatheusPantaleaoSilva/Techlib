@@ -11,32 +11,33 @@ import {
   Grid,
   Alert,
   MenuItem,
-  InputAdornment
+  InputAdornment,
+  Chip
 } from "@mui/material";
 
 // Ícones
 import SaveIcon from '@mui/icons-material/Save';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import Inventory2Icon from '@mui/icons-material/Inventory2'; // Ícone de estoque
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import DescriptionIcon from '@mui/icons-material/Description'; // Novo ícone
 
 const NovoLivro = () => {
   const navigate = useNavigate();
   
-  // Estados
   const [categorias, setCategorias] = useState([]);
+  
   const [form, setForm] = useState({
     nome: "",
     autor: "",
     isbn: "",
-    categoria_id: "", // Agora guardamos o ID, não o nome
-    dataAquisicao: "",
+    categoria_ids: [],
+    descricao: "", // Novo campo de estado
     imagemUrl: "",
     quantidade: 1
   });
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Carregar categorias ao iniciar
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
@@ -58,8 +59,7 @@ const NovoLivro = () => {
     e.preventDefault();
     setErro("");
 
-    // Validação simples
-    if (!form.nome || !form.autor || !form.isbn || !form.categoria_id || !form.dataAquisicao || !form.quantidade) {
+    if (!form.nome || !form.autor || !form.isbn || form.categoria_ids.length === 0 || !form.quantidade) {
       setErro("Todos os campos obrigatórios devem ser preenchidos.");
       return;
     }
@@ -70,8 +70,8 @@ const NovoLivro = () => {
         nome: form.nome,
         autor: form.autor,
         isbn: form.isbn,
-        categoria_id: parseInt(form.categoria_id), // Envia o ID da categoria
-        data_aquisicao: form.dataAquisicao,
+        categoria_ids: form.categoria_ids,
+        descricao: form.descricao, // Envia a descrição
         imagem_url: form.imagemUrl,
         quantidade: parseInt(form.quantidade)
       });
@@ -106,7 +106,6 @@ const NovoLivro = () => {
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             
-            {/* Título */}
             <Grid item xs={12}>
               <TextField
                 label="Título do Livro"
@@ -118,7 +117,6 @@ const NovoLivro = () => {
               />
             </Grid>
             
-            {/* Autor */}
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Autor"
@@ -130,17 +128,27 @@ const NovoLivro = () => {
               />
             </Grid>
 
-            {/* Categoria (Dropdown) */}
             <Grid item xs={12} sm={6}>
               <TextField
                 select
-                label="Categoria"
-                name="categoria_id"
-                value={form.categoria_id}
+                label="Categorias"
+                name="categoria_ids"
+                value={form.categoria_ids}
                 onChange={handleChange}
                 fullWidth
                 required
-                helperText={categorias.length === 0 ? "Crie categorias primeiro" : ""}
+                helperText={categorias.length === 0 ? "Crie categorias primeiro" : "Selecione uma ou mais"}
+                SelectProps={{
+                  multiple: true,
+                  renderValue: (selected) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selected.map((value) => {
+                         const cat = categorias.find(c => c.id === value);
+                         return <Chip key={value} label={cat ? cat.nome : value} size="small" />;
+                      })}
+                    </Box>
+                  ),
+                }}
               >
                 {categorias.map((cat) => (
                   <MenuItem key={cat.id} value={cat.id}>
@@ -150,8 +158,30 @@ const NovoLivro = () => {
               </TextField>
             </Grid>
 
-            {/* ISBN */}
-            <Grid item xs={12} sm={4}>
+            {/* CAMPO DE DESCRIÇÃO NOVO */}
+            <Grid item xs={12}>
+              <TextField
+                label="Descrição / Sinopse"
+                name="descricao"
+                value={form.descricao}
+                onChange={handleChange}
+                fullWidth
+                multiline
+                rows={3}
+                placeholder="Escreva um breve resumo do livro (máximo 500 caracteres)"
+                inputProps={{ maxLength: 500 }}
+                helperText={`${form.descricao.length}/500 caracteres`}
+                InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start" sx={{alignSelf: 'flex-start', mt: 1.5}}>
+                        <DescriptionIcon color="action" />
+                      </InputAdornment>
+                    ),
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
               <TextField
                 label="ISBN"
                 name="isbn"
@@ -162,22 +192,7 @@ const NovoLivro = () => {
               />
             </Grid>
 
-            {/* Data de Aquisição */}
-            <Grid item xs={12} sm={4}>
-              <TextField
-                label="Data de Aquisição"
-                type="date"
-                name="dataAquisicao"
-                value={form.dataAquisicao}
-                onChange={handleChange}
-                fullWidth
-                required
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-
-            {/* Quantidade */}
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 label="Quantidade"
                 type="number"
@@ -197,7 +212,6 @@ const NovoLivro = () => {
               />
             </Grid>
 
-            {/* Imagem */}
             <Grid item xs={12}>
               <TextField
                 label="URL da Imagem (Capa)"
@@ -209,7 +223,6 @@ const NovoLivro = () => {
               />
             </Grid>
 
-            {/* Botões */}
             <Grid item xs={12} display="flex" justifyContent="flex-end" gap={2}>
               <Button 
                 variant="outlined" 

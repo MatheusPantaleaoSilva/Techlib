@@ -2,22 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../services/Api";
 import { useNavigate } from "react-router-dom";
 import {
-  Container,
-  Grid,
-  Card,
-  CardMedia,
-  CardContent,
-  CardActions,
-  Typography,
-  Button,
-  Box,
-  CircularProgress,
-  Alert,
-  Chip,
-  TextField,
-  InputAdornment,
-  Pagination,
-  IconButton,
+  Container, Grid, Card, CardMedia, CardContent, CardActions, Typography, Button, Box, CircularProgress, Alert, Chip, TextField, InputAdornment, Pagination, IconButton, FormControlLabel, Switch
 } from "@mui/material";
 
 // Ícones
@@ -25,16 +10,17 @@ import SearchIcon from '@mui/icons-material/Search';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import ArchiveIcon from '@mui/icons-material/Archive'; 
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const ListaLivros = () => {
   const [livros, setLivros] = useState([]);
   
-  // Estados de Filtros
   const [busca, setBusca] = useState("");
-  const [mostrarFavoritos, setMostrarFavoritos] = useState(false); // Toggle filtro
-  const [meusFavoritosIds, setMeusFavoritosIds] = useState([]); // Lista de IDs favoritados (1, 5, 9)
+  const [mostrarFavoritos, setMostrarFavoritos] = useState(false);
+  const [mostrarArquivados, setMostrarArquivados] = useState(false);
+  const [meusFavoritosIds, setMeusFavoritosIds] = useState([]);
 
-  // Paginação
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   
@@ -44,281 +30,239 @@ const ListaLivros = () => {
 
   const usuario = JSON.parse(localStorage.getItem("usuario"));
   const isFuncionario = usuario?.role === "FUNCIONARIO";
-
   const PLACEHOLDER_IMG = "https://via.placeholder.com/300x450?text=Sem+Capa";
 
-  // --- Funções de Carregamento ---
-
-  // 1. Carrega os livros (com ou sem filtro de favoritos)
-  const fetchLivros = async (pagina, termo, apenasFav) => {
+  const fetchLivros = async (pagina, termo, apenasFav, verArquivados) => {
     setLoading(true);
     try {
-      const endpoint = `/livros?page=${pagina}&per_page=8&q=${termo}&apenas_favoritos=${apenasFav}`;
+      const endpoint = `/livros?page=${pagina}&per_page=8&q=${termo}&apenas_favoritos=${apenasFav}&ver_arquivados=${verArquivados}`;
       const response = await api.get(endpoint);
-      
       setLivros(response.data.livros);
       setTotalPages(response.data.total_paginas);
-    } catch (error) {
-      console.error(error);
-      setErro("Erro ao carregar livros.");
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { setErro("Erro ao carregar livros."); } 
+    finally { setLoading(false); }
   };
 
-  // 2. Carrega APENAS os IDs que o usuário favoritou (para pintar o coração)
   const fetchMeusFavoritosIds = async () => {
     try {
       const res = await api.get("/livros/meus-favoritos-ids");
-      setMeusFavoritosIds(res.data); // Ex: [1, 4, 10]
-    } catch (error) {
-      console.error("Erro ao carregar favoritos:", error);
-    }
+      setMeusFavoritosIds(res.data);
+    } catch (error) { console.error("Erro favoritos:", error); }
   };
 
-  // --- Efeitos ---
+  useEffect(() => { fetchMeusFavoritosIds(); }, []);
 
-  // Carrega IDs dos favoritos uma vez na montagem
-  useEffect(() => {
-    fetchMeusFavoritosIds();
-  }, []);
-
-  // Recarrega livros sempre que mudar página, busca ou o filtro "mostrarFavoritos"
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      fetchLivros(page, busca, mostrarFavoritos);
+      fetchLivros(page, busca, mostrarFavoritos, mostrarArquivados);
     }, 300);
-
     return () => clearTimeout(delayDebounceFn);
-  }, [page, busca, mostrarFavoritos]);
+  }, [page, busca, mostrarFavoritos, mostrarArquivados]);
 
+  const handleBuscaChange = (e) => { setBusca(e.target.value); setPage(1); };
+  const handlePageChange = (event, value) => { setPage(value); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const toggleFiltroFavoritos = () => { setMostrarFavoritos(!mostrarFavoritos); setPage(1); };
 
-  // --- Handlers ---
-
-  const handleBuscaChange = (e) => {
-    setBusca(e.target.value);
-    setPage(1); 
-  };
-
-  const handlePageChange = (event, value) => {
-    setPage(value);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const toggleFiltroFavoritos = () => {
-    setMostrarFavoritos(!mostrarFavoritos);
-    setPage(1); // Volta pra pagina 1 ao mudar o modo
-  };
-
-  // Ação de clicar no Coração
-  const handleFavoritar = async (id) => {
+  const handleFavoritar = async (e, id) => {
+    e.stopPropagation(); 
     try {
-      // Chama API
       await api.post(`/livros/${id}/favoritar`);
-      
-      // Atualiza estado local visualmente (sem precisar recarregar tudo)
       if (meusFavoritosIds.includes(id)) {
-        // Se já estava, remove
         setMeusFavoritosIds(prev => prev.filter(favId => favId !== id));
-        // Se estamos no modo "Só Favoritos", remove o livro da lista visualmente também
-        if (mostrarFavoritos) {
-          setLivros(prev => prev.filter(l => l.id !== id));
-        }
+        if (mostrarFavoritos) setLivros(prev => prev.filter(l => l.id !== id));
       } else {
-        // Se não estava, adiciona
         setMeusFavoritosIds(prev => [...prev, id]);
       }
-    } catch (error) {
-      console.error("Erro ao favoritar:", error);
-    }
+    } catch (error) { console.error(error); }
   };
 
-  const handleEditar = (id) => {
-    navigate(`/livros/editar/${id}`);
-  };
-
-  const handleNovoLivro = () => {
-    navigate("/livros/novo");
+  const irParaDetalhes = (id) => {
+    navigate(`/livros/detalhes/${id}`);
   };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      
-      {/* Cabeçalho */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
-        <Typography variant="h4" component="h2" fontWeight="bold" color="primary">
-          {mostrarFavoritos ? "Meus Favoritos" : "Catálogo de Livros"}
+        <Typography variant="h4" fontWeight="bold" color="primary">
+          {mostrarArquivados ? "Livros Arquivados" : (mostrarFavoritos ? "Meus Favoritos" : "Catálogo de Livros")}
         </Typography>
         
-        <Box display="flex" gap={2}>
-            {/* Botão de Toggle Favoritos */}
-            <Button 
-                variant={mostrarFavoritos ? "contained" : "outlined"} 
-                color="error" 
-                onClick={toggleFiltroFavoritos}
-                startIcon={mostrarFavoritos ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-            >
+        <Box display="flex" gap={2} alignItems="center">
+            {isFuncionario && (
+              <FormControlLabel
+                control={<Switch checked={mostrarArquivados} onChange={() => { setMostrarArquivados(!mostrarArquivados); setPage(1); }} color="warning" />}
+                label="Ver Arquivados" sx={{ mr: 2, color: 'text.secondary', fontWeight: 'bold' }}
+              />
+            )}
+            <Button variant={mostrarFavoritos ? "contained" : "outlined"} color="error" onClick={toggleFiltroFavoritos} disabled={mostrarArquivados} startIcon={mostrarFavoritos ? <FavoriteIcon /> : <FavoriteBorderIcon />}>
                 {mostrarFavoritos ? "Ver Todos" : "Meus Favoritos"}
             </Button>
-
             {isFuncionario && (
-            <Button 
-                variant="contained" 
-                color="success" 
-                onClick={handleNovoLivro}
-                sx={{ fontWeight: 'bold' }}
-            >
-                + Novo Livro
-            </Button>
+            <Button variant="contained" color="success" onClick={() => navigate("/livros/novo")} sx={{ fontWeight: 'bold' }}>+ Novo Livro</Button>
             )}
         </Box>
       </Box>
 
-      {/* Barra de Busca */}
       <Box mb={4}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Pesquisar por título, autor ou categoria..."
-          value={busca}
-          onChange={handleBuscaChange}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon color="action" />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ backgroundColor: 'background.paper', borderRadius: 1 }}
-        />
+        <TextField fullWidth variant="outlined" placeholder="Pesquisar..." value={busca} onChange={handleBuscaChange} InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon color="action" /></InputAdornment>) }} sx={{ backgroundColor: 'background.paper', borderRadius: 1 }} />
       </Box>
 
       {erro && <Alert severity="error" sx={{ mb: 3 }}>{erro}</Alert>}
 
       {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="40vh">
-          <CircularProgress />
-        </Box>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="40vh"><CircularProgress /></Box>
       ) : (
         <>
           {!erro && livros.length === 0 && (
-            <Alert severity="info">
-                {mostrarFavoritos 
-                    ? "Você ainda não tem livros favoritos." 
-                    : "Nenhum livro encontrado na sua pesquisa."}
-            </Alert>
+            <Alert severity="info">Nenhum livro encontrado.</Alert>
           )}
 
-          <Grid container spacing={3}>
+          <Grid container spacing={3} alignItems="stretch">
             {livros.map((livro) => {
-              // Lógica de Disponibilidade
               const total = livro.quantidade || 0;
               const disponiveis = livro.quantidade_disponivel !== undefined ? livro.quantidade_disponivel : total;
               const estaDisponivel = disponiveis > 0;
-              
-              // Verifica se este livro está na lista de favoritos do usuário
               const isFavorito = meusFavoritosIds.includes(livro.id);
+              const isArquivado = livro.ativo === false; 
 
               return (
-                <Grid item key={livro.id} xs={12} sm={6} md={4} lg={3}>
+                <Grid item key={livro.id} xs={12} sm={6} md={4} lg={3} sx={{ display: 'flex' }}>
                   <Card 
+                    onClick={() => irParaDetalhes(livro.id)}
                     sx={{ 
-                      height: '100%', 
-                      display: 'flex', 
-                      flexDirection: 'column',
-                      position: 'relative', // Para posicionar o coração
-                      transition: 'transform 0.2s',
-                      '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
-                      opacity: estaDisponivel ? 1 : 0.8
+                        // --- 1. ALTURA FIXA GERAL ---
+                        height: '480px', 
+                        width: '100%',
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        position: 'relative', 
+                        transition: 'transform 0.2s', 
+                        cursor: 'pointer',
+                        '&:hover': { transform: 'scale(1.02)', boxShadow: 6 }, 
+                        opacity: isArquivado ? 0.8 : (estaDisponivel ? 1 : 0.8), 
+                        border: isArquivado ? '2px dashed #ed6c02' : 'none', 
+                        backgroundColor: isArquivado ? '#fff3e0' : 'white' 
                     }}
                   >
-                    {/* Botão de Favoritar Flutuante na Capa */}
-                    <Box sx={{ position: 'absolute', top: 10, right: 10, zIndex: 10 }}>
-                        <IconButton 
-                            onClick={() => handleFavoritar(livro.id)}
-                            sx={{ 
-                                backgroundColor: 'rgba(255,255,255,0.7)', 
-                                '&:hover': { backgroundColor: 'white' } 
-                            }}
-                        >
-                            {isFavorito ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon color="action" />}
-                        </IconButton>
-                    </Box>
+                    {!isArquivado && (
+                        <Box sx={{ position: 'absolute', top: 10, right: 10, zIndex: 10 }}>
+                            <IconButton 
+                                onClick={(e) => handleFavoritar(e, livro.id)}
+                                sx={{ backgroundColor: 'rgba(255,255,255,0.7)', '&:hover': { backgroundColor: 'white' } }}
+                            >
+                                {isFavorito ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon color="action" />}
+                            </IconButton>
+                        </Box>
+                    )}
+                    {isArquivado && <Chip label="ARQUIVADO" color="warning" size="small" icon={<ArchiveIcon />} sx={{ position: 'absolute', top: 10, right: 10, zIndex: 10, fontWeight: 'bold' }} />}
 
-                    <CardMedia
-                      component="img"
-                      height="250"
-                      image={livro.imagem_url || PLACEHOLDER_IMG}
-                      alt={`Capa de ${livro.nome}`}
-                      sx={{ objectFit: "cover", objectPosition: "top" }}
-                      onError={(e) => { e.target.src = PLACEHOLDER_IMG; }}
+                    {/* --- 2. IMAGEM FIXA --- */}
+                    <CardMedia 
+                        component="img" 
+                        height="220" 
+                        image={livro.imagem_url || PLACEHOLDER_IMG} 
+                        alt={`Capa de ${livro.nome}`} 
+                        sx={{ objectFit: "cover", objectPosition: "top", filter: isArquivado ? 'grayscale(100%)' : 'none' }} 
+                        onError={(e) => { e.target.src = PLACEHOLDER_IMG; }} 
                     />
                     
-                    <CardContent sx={{ flexGrow: 1, pb: 1 }}>
-                      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                          <Chip 
-                            label={livro.categoria_nome || "Geral"} 
-                            size="small" 
-                            color="primary" 
-                            variant="outlined" 
-                          />
+                    <CardContent sx={{ flexGrow: 1, pb: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                      
+                      {/* --- 3. ÁREA DE CATEGORIAS FIXA (35px) --- */}
+                      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1} sx={{ height: '35px', overflow: 'hidden' }}>
+                          <Box display="flex" gap={0.5} flexWrap="wrap" sx={{ height: '100%', overflow: 'hidden', alignItems: 'center' }}>
+                            {livro.categorias && livro.categorias.length > 0 ? (
+                                livro.categorias.slice(0, 2).map((cat) => <Chip key={cat.id} label={cat.nome} size="small" color="primary" variant="outlined" />)
+                            ) : (<Chip label="Geral" size="small" variant="outlined" />)}
+                            {livro.categorias && livro.categorias.length > 2 && <Typography variant="caption" color="text.secondary">+{livro.categorias.length - 2}</Typography>}
+                          </Box>
                           
-                          {isFuncionario ? (
+                          {!isArquivado && (
                             <Chip 
-                              icon={<Inventory2Icon fontSize="small" />}
-                              label={`${disponiveis}/${total} ex.`} 
-                              size="small" 
-                              color={estaDisponivel ? "default" : "error"}
-                            />
-                          ) : (
-                            <Chip 
-                              label={estaDisponivel ? "Disponível" : "Esgotado"} 
-                              size="small" 
-                              color={estaDisponivel ? "success" : "error"}
-                              variant={estaDisponivel ? "filled" : "outlined"}
+                                icon={<Inventory2Icon fontSize="small" />} 
+                                label={
+                                    isFuncionario 
+                                    ? `${disponiveis}/${total}` 
+                                    : (estaDisponivel ? `${disponiveis} disp.` : "Esgotado")
+                                } 
+                                size="small" 
+                                color={estaDisponivel ? (isFuncionario ? "default" : "success") : "error"} 
+                                variant={estaDisponivel && !isFuncionario ? "filled" : "outlined"}
+                                sx={{ ml: 1, flexShrink: 0 }}
                             />
                           )}
                       </Box>
                       
-                      <Typography gutterBottom variant="h6" component="div" lineHeight={1.2} mt={1}>
+                      {/* --- 4. TÍTULO FIXO (2.6em ~ 2 linhas) --- */}
+                      <Typography 
+                        gutterBottom 
+                        variant="h6" 
+                        component="div" 
+                        lineHeight={1.2} 
+                        mt={1}
+                        title={livro.nome}
+                        sx={{ 
+                            height: '2.6em', // Altura reservada
+                            overflow: 'hidden',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical'
+                        }}
+                      >
                         {livro.nome}
                       </Typography>
-                      
-                      <Typography variant="body2" color="text.secondary" fontStyle="italic">
+
+                      {/* --- 5. AUTOR FIXO (1.5em ~ 1 linha) --- */}
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary" 
+                        fontStyle="italic" 
+                        noWrap 
+                        sx={{ height: '1.5em', mt: 0.5 }}
+                      >
                         {livro.autor}
                       </Typography>
                     </CardContent>
 
-                    {isFuncionario && (
-                      <CardActions sx={{ p: 2, pt: 0 }}>
+                    {/* --- 6. BOTÕES (Rodapé Fixo) --- */}
+                    <CardActions sx={{ 
+                        p: 2, 
+                        pt: 0, 
+                        mt: 'auto', // Empurra para o fundo
+                        height: '60px', // Altura reservada para os botões
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}>
                         <Button 
-                          size="small" 
-                          variant="contained" 
-                          fullWidth 
-                          onClick={() => handleEditar(livro.id)}
+                            size="small" 
+                            startIcon={<VisibilityIcon />} 
+                            onClick={(e) => { e.stopPropagation(); irParaDetalhes(livro.id); }}
+                            fullWidth={!isFuncionario}
+                            variant={!isFuncionario ? "contained" : "outlined"}
+                            color={!isFuncionario ? "primary" : "primary"}
                         >
-                          Gerenciar
+                            Detalhes
                         </Button>
-                      </CardActions>
-                    )}
+
+                        {isFuncionario && (
+                            <Button 
+                                size="small" 
+                                variant="contained" 
+                                onClick={(e) => { e.stopPropagation(); navigate(`/livros/editar/${livro.id}`); }}
+                            >
+                                Gerenciar
+                            </Button>
+                        )}
+                    </CardActions>
                   </Card>
                 </Grid>
               );
             })}
           </Grid>
 
-          {/* Paginação */}
           {totalPages > 1 && (
             <Box display="flex" justifyContent="center" mt={5}>
-              <Pagination 
-                count={totalPages} 
-                page={page} 
-                onChange={handlePageChange} 
-                color="primary" 
-                size="large"
-                showFirstButton 
-                showLastButton
-              />
+              <Pagination count={totalPages} page={page} onChange={handlePageChange} color="primary" size="large" showFirstButton showLastButton />
             </Box>
           )}
         </>

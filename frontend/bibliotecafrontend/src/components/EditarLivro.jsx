@@ -17,7 +17,8 @@ import {
   DialogContentText,
   DialogTitle,
   MenuItem,
-  InputAdornment
+  InputAdornment,
+  Chip
 } from "@mui/material";
 
 // Ícones
@@ -25,32 +26,34 @@ import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
+import UnarchiveIcon from '@mui/icons-material/Unarchive';
+import DescriptionIcon from '@mui/icons-material/Description'; // Novo ícone
 
 const EditarLivro = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Estados
   const [categorias, setCategorias] = useState([]);
   const [form, setForm] = useState({
     nome: "",
     autor: "",
     isbn: "",
-    categoria_id: "",
+    categoria_ids: [],
+    descricao: "", // Novo campo de estado
     dataAquisicao: "",
     imagemUrl: "",
-    quantidade: 1
+    quantidade: 1,
+    ativo: true
   });
   
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [msg, setMsg] = useState({ type: "", text: "" });
   const [openDialog, setOpenDialog] = useState(false);
 
-  // Carregar Livro e Categorias
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Faz as duas requisições em paralelo para ser mais rápido
         const [resLivro, resCats] = await Promise.all([
           api.get(`/livros/${id}`),
           api.get("/categorias")
@@ -59,15 +62,20 @@ const EditarLivro = () => {
         setCategorias(resCats.data);
         
         const livro = resLivro.data;
+        
+        // Extrai apenas os IDs da lista de objetos categoria
+        const idsCats = livro.categorias ? livro.categorias.map(c => c.id) : [];
+
         setForm({
           nome: livro.nome || "",
           autor: livro.autor || "",
           isbn: livro.isbn || "",
-          // Se o backend retornar categoria_id, usa-o. Se não, tenta encontrar pelo nome (fallback)
-          categoria_id: livro.categoria_id || "", 
+          categoria_ids: idsCats,
+          descricao: livro.descricao || "", // Carrega descrição
           dataAquisicao: livro.data_aquisicao || "",
           imagemUrl: livro.imagem_url || "",
-          quantidade: livro.quantidade || 1
+          quantidade: livro.quantidade || 1,
+          ativo: livro.ativo !== false
         });
 
       } catch (error) {
@@ -87,32 +95,52 @@ const EditarLivro = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    setMsg({ type: "", text: "" });
+    setErro("");
     
     try {
       await api.put(`/livros/${id}`, {
         nome: form.nome,
         autor: form.autor,
         isbn: form.isbn,
-        categoria_id: parseInt(form.categoria_id),
-        data_aquisicao: form.dataAquisicao,
+        categoria_ids: form.categoria_ids,
+        descricao: form.descricao, // Envia descrição atualizada
         imagem_url: form.imagemUrl,
-        quantidade: parseInt(form.quantidade)
+        quantidade: parseInt(form.quantidade),
+        ativo: form.ativo
       });
-      navigate("/livros");
+      setMsg({ type: "success", text: "Livro atualizado com sucesso!" });
+      setTimeout(() => navigate("/livros"), 1500);
     } catch (error) {
       console.error(error);
       setErro("Erro ao atualizar livro.");
     }
   };
 
-  const handleDelete = async () => {
+  const handleArquivar = async () => {
     try {
       await api.delete(`/livros/${id}`);
-      navigate("/livros");
+      setMsg({ type: "success", text: "Livro arquivado com sucesso!" });
+      setForm({ ...form, ativo: false });
+      setOpenDialog(false);
     } catch (error) {
       console.error(error);
-      setErro("Erro ao excluir livro. Verifique se não há empréstimos ativos.");
+      setErro("Erro ao arquivar livro.");
       setOpenDialog(false);
+    }
+  };
+
+  const handleReativar = async () => {
+    try {
+      await api.put(`/livros/${id}`, {
+        ...form,
+        ativo: true 
+      });
+      setForm({ ...form, ativo: true });
+      setMsg({ type: "success", text: "Livro reativado e voltou para o acervo!" });
+    } catch (error) {
+      console.error(error);
+      setErro("Erro ao reativar livro.");
     }
   };
 
@@ -139,22 +167,32 @@ const EditarLivro = () => {
             </Typography>
           </Box>
           
-          <Button 
-            variant="contained" 
-            color="error" 
-            startIcon={<DeleteIcon />}
-            onClick={() => setOpenDialog(true)}
-          >
-            Excluir
-          </Button>
+          {!form.ativo && (
+             <Chip label="ARQUIVADO" color="warning" icon={<UnarchiveIcon />} />
+          )}
         </Box>
 
         {erro && <Alert severity="error" sx={{ mb: 3 }}>{erro}</Alert>}
+        {msg.text && <Alert severity={msg.type} sx={{ mb: 3 }}>{msg.text}</Alert>}
+
+        {!form.ativo && (
+            <Alert 
+                severity="warning" 
+                variant="filled"
+                action={
+                    <Button color="inherit" size="small" onClick={handleReativar} sx={{ fontWeight: 'bold' }}>
+                        REATIVAR AGORA
+                    </Button>
+                }
+                sx={{ mb: 4 }}
+            >
+                Este livro está arquivado. Ele não aparece para novos empréstimos.
+            </Alert>
+        )}
 
         <form onSubmit={handleUpdate}>
           <Grid container spacing={3}>
             
-            {/* Título */}
             <Grid item xs={12}>
               <TextField
                 label="Título"
@@ -163,10 +201,10 @@ const EditarLivro = () => {
                 onChange={handleChange}
                 fullWidth
                 required
+                disabled={!form.ativo}
               />
             </Grid>
 
-            {/* Autor */}
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Autor"
@@ -175,19 +213,31 @@ const EditarLivro = () => {
                 onChange={handleChange}
                 fullWidth
                 required
+                disabled={!form.ativo}
               />
             </Grid>
 
-            {/* Categoria (Dropdown) */}
             <Grid item xs={12} sm={6}>
               <TextField
                 select
-                label="Categoria"
-                name="categoria_id"
-                value={form.categoria_id}
+                label="Categorias"
+                name="categoria_ids"
+                value={form.categoria_ids}
                 onChange={handleChange}
                 fullWidth
                 required
+                disabled={!form.ativo}
+                SelectProps={{
+                  multiple: true,
+                  renderValue: (selected) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selected.map((val) => {
+                          const c = categorias.find(cat => cat.id === val);
+                          return <Chip key={val} label={c ? c.nome : val} size="small" />;
+                      })}
+                    </Box>
+                  ),
+                }}
               >
                 {categorias.map((cat) => (
                   <MenuItem key={cat.id} value={cat.id}>
@@ -197,7 +247,29 @@ const EditarLivro = () => {
               </TextField>
             </Grid>
 
-            {/* ISBN */}
+            {/* CAMPO DE DESCRIÇÃO EDITÁVEL */}
+            <Grid item xs={12}>
+              <TextField
+                label="Descrição / Sinopse"
+                name="descricao"
+                value={form.descricao}
+                onChange={handleChange}
+                fullWidth
+                multiline
+                rows={3}
+                inputProps={{ maxLength: 500 }}
+                helperText={`${form.descricao.length}/500 caracteres`}
+                disabled={!form.ativo}
+                InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start" sx={{alignSelf: 'flex-start', mt: 1.5}}>
+                        <DescriptionIcon color="action" />
+                      </InputAdornment>
+                    ),
+                }}
+              />
+            </Grid>
+
             <Grid item xs={12} sm={4}>
               <TextField
                 label="ISBN"
@@ -206,24 +278,24 @@ const EditarLivro = () => {
                 onChange={handleChange}
                 fullWidth
                 required
+                disabled={!form.ativo}
               />
             </Grid>
 
-            {/* Data de Aquisição */}
             <Grid item xs={12} sm={4}>
               <TextField
                 label="Data de Aquisição"
                 type="date"
                 name="dataAquisicao"
                 value={form.dataAquisicao}
-                onChange={handleChange}
                 fullWidth
                 required
                 InputLabelProps={{ shrink: true }}
+                disabled={true} 
+                helperText="Fixo"
               />
             </Grid>
 
-            {/* Quantidade */}
             <Grid item xs={12} sm={4}>
               <TextField
                 label="Quantidade"
@@ -233,6 +305,7 @@ const EditarLivro = () => {
                 onChange={handleChange}
                 fullWidth
                 required
+                disabled={!form.ativo}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -244,7 +317,6 @@ const EditarLivro = () => {
               />
             </Grid>
 
-            {/* Imagem */}
             <Grid item xs={12}>
               <TextField
                 label="URL da Capa"
@@ -253,45 +325,68 @@ const EditarLivro = () => {
                 onChange={handleChange}
                 fullWidth
                 helperText="Link para imagem externa"
+                disabled={!form.ativo}
               />
             </Grid>
 
-            {/* Botões */}
-            <Grid item xs={12} display="flex" justifyContent="flex-end" gap={2}>
-              <Button 
-                variant="outlined" 
-                onClick={() => navigate("/livros")}
-              >
-                Cancelar
-              </Button>
-              <Button 
-                type="submit" 
-                variant="contained" 
-                size="large"
-                startIcon={<SaveIcon />}
-              >
-                Salvar Alterações
-              </Button>
+            <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center" mt={2}>
+              
+              {form.ativo ? (
+                  <Button 
+                    variant="outlined" 
+                    color="error" 
+                    startIcon={<DeleteIcon />}
+                    onClick={() => setOpenDialog(true)}
+                  >
+                    Arquivar Livro
+                  </Button>
+              ) : (
+                  <Button 
+                    variant="contained" 
+                    color="success" 
+                    startIcon={<UnarchiveIcon />}
+                    onClick={handleReativar}
+                  >
+                    Reativar Livro
+                  </Button>
+              )}
+
+              <Box display="flex" gap={2}>
+                <Button 
+                    variant="outlined" 
+                    onClick={() => navigate("/livros")}
+                >
+                    Cancelar
+                </Button>
+                <Button 
+                    type="submit" 
+                    variant="contained" 
+                    size="large"
+                    startIcon={<SaveIcon />}
+                    disabled={!form.ativo}
+                >
+                    Salvar Alterações
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </form>
       </Paper>
 
-      {/* Modal de Confirmação de Exclusão */}
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
       >
-        <DialogTitle>Confirmar Exclusão</DialogTitle>
+        <DialogTitle>Confirmar Arquivamento</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Tem a certeza que deseja apagar o livro "{form.nome}"? Esta ação não pode ser desfeita.
+            Tem a certeza que deseja arquivar este livro?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancelar</Button>
-          <Button onClick={handleDelete} color="error" autoFocus>
-            Confirmar Exclusão
+          <Button onClick={handleArquivar} color="error" autoFocus>
+            Confirmar e Arquivar
           </Button>
         </DialogActions>
       </Dialog>

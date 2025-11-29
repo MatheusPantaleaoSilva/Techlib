@@ -9,6 +9,7 @@ from routes.indicacoes import indicacoes_bp
 from routes.categorias import categorias_bp
 from flask_jwt_extended import JWTManager
 import os 
+from datetime import timedelta
 
 # Importar os modelos necessários para criar o admin
 from models.usuario import Usuario
@@ -20,6 +21,7 @@ CORS(app)
 
 # LER A CHAVE DO .ENV
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "chave_padrao_insegura_dev")
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
 jwt = JWTManager(app)
 

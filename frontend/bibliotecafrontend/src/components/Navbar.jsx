@@ -25,7 +25,7 @@ export default function Navbar() {
         {/* O botão "Biblioteca" já serve como Home/Dashboard */}
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           <Button color="inherit" component={Link} to={isAuthenticated ? "/dashboard" : "/"} sx={{ fontSize: '1.1rem' }}>
-            Biblioteca
+            Bibliotech
           </Button>
         </Typography>
 

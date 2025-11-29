@@ -38,10 +38,10 @@ def deletar_categoria(id):
     if not categoria:
         return jsonify({"error": "Categoria não encontrada"}), 404
     
-    # Verificar se há livros usando esta categoria
-    if len(categoria.livros) > 0:
-        return jsonify({"error": "Não é possível apagar: Existem livros nesta categoria."}), 400
-
-    db.session.delete(categoria)
-    db.session.commit()
-    return jsonify({"msg": "Categoria removida com sucesso"}), 200
+    try:
+        db.session.delete(categoria)
+        db.session.commit()
+        return jsonify({"msg": "Categoria removida com sucesso"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Erro ao deletar categoria", "detalhes": str(e)}), 400

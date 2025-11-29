@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { ThemeProvider, CssBaseline, Box } from "@mui/material"; // Typography não é mais necessário aqui se só usar imagem
+import { ThemeProvider, CssBaseline, Box } from "@mui/material";
 import theme from "./theme";
 
 import Dashboard from "./components/DashBoard";
@@ -8,6 +8,7 @@ import ListaPessoas from "./components/ListaPessoas";
 import ListaLivros from "./components/ListaLivros";
 import NovoLivro from "./components/NovoLivro";
 import EditarLivro from "./components/EditarLivro";
+import DetalhesLivro from "./components/DetalhesLivro"; // <--- NOVO IMPORT
 import EditarPessoa from "./components/EditarPessoa";
 import Login from "./components/Login";
 import CadastroCliente from "./components/CadastroCliente";
@@ -42,131 +43,36 @@ const App = () => (
     <Router>
       <Navbar />
       <Routes>
-        {/* Rota Pública */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registrar" element={<CadastroCliente />} />
 
-        {/* Rotas Protegidas */}
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
+        {/* Dashboard */}
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         
-        {/* Rotas de Funcionário */}
-        <Route
-          path="/emprestimos"
-          element={
-            <PrivateRoute role="FUNCIONARIO">
-              <GerenciarEmprestimos />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/pessoas"
-          element={
-            <PrivateRoute role="FUNCIONARIO">
-              <ListaPessoas />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/pessoas/editar/:id"
-          element={
-            <PrivateRoute role="FUNCIONARIO">
-              <EditarPessoa />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/indicacoes"
-          element={
-            <PrivateRoute role="FUNCIONARIO">
-              <GerenciarIndicacoes />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/categorias"
-          element={
-            <PrivateRoute role="FUNCIONARIO">
-              <GerenciarCategorias />
-            </PrivateRoute>
-          }
-        />
+        {/* Funcionário */}
+        <Route path="/emprestimos" element={<PrivateRoute role="FUNCIONARIO"><GerenciarEmprestimos /></PrivateRoute>} />
+        <Route path="/pessoas" element={<PrivateRoute role="FUNCIONARIO"><ListaPessoas /></PrivateRoute>} />
+        <Route path="/pessoas/editar/:id" element={<PrivateRoute role="FUNCIONARIO"><EditarPessoa /></PrivateRoute>} />
+        <Route path="/indicacoes" element={<PrivateRoute role="FUNCIONARIO"><GerenciarIndicacoes /></PrivateRoute>} />
+        <Route path="/categorias" element={<PrivateRoute role="FUNCIONARIO"><GerenciarCategorias /></PrivateRoute>} />
 
-        {/* Rotas Comuns (Livros) */}
-        <Route
-          path="/livros"
-          element={
-            <PrivateRoute>
-              <ListaLivros />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/livros/novo"
-          element={
-            <PrivateRoute>
-              <NovoLivro />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/livros/editar/:id"
-          element={
-            <PrivateRoute>
-              <EditarLivro />
-            </PrivateRoute>
-          }
-        />
+        {/* Livros */}
+        <Route path="/livros" element={<PrivateRoute><ListaLivros /></PrivateRoute>} />
+        <Route path="/livros/novo" element={<PrivateRoute><NovoLivro /></PrivateRoute>} />
+        <Route path="/livros/editar/:id" element={<PrivateRoute><EditarLivro /></PrivateRoute>} />
+        
+        {/* NOVA ROTA DE DETALHES */}
+        <Route path="/livros/detalhes/:id" element={<PrivateRoute><DetalhesLivro /></PrivateRoute>} />
 
         {/* Perfil */}
-        <Route
-          path="/perfil"
-          element={
-            <PrivateRoute>
-              <Perfil />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/perfil/editar"
-          element={
-            <PrivateRoute>
-              <EditarPerfil />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
+        <Route path="/perfil/editar" element={<PrivateRoute><EditarPerfil /></PrivateRoute>} />
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
 
-      {/* --- MARCA D'ÁGUA COM IMAGEM --- */}
-      <Box
-        component="img"
-        src="/marca_dagua.png"  // <--- NOME DO ARQUIVO NA PASTA PUBLIC
-        alt="Logo"
-        sx={{
-          position: 'fixed',
-          bottom: 20,
-          right: 20,
-          height: 60,            // Ajuste o tamanho da imagem aqui
-          width: 'auto',         // Mantém a proporção
-          opacity: 0.5,          // Transparência (0.1 a 1.0)
-          pointerEvents: 'none', // Permite clicar através da imagem
-          zIndex: 9999,
-          userSelect: 'none',
-          // Opcional: filtro para deixar preto e branco se quiser
-          // filter: 'grayscale(100%)' 
-        }}
-      />
-      {/* ------------------------------- */}
-
+      <Box component="img" src="/marca_dagua.png" alt="Logo" sx={{ position: 'fixed', bottom: 20, right: 20, height: 60, width: 'auto', opacity: 0.5, pointerEvents: 'none', zIndex: 9999, userSelect: 'none' }} />
     </Router>
   </ThemeProvider>
 );

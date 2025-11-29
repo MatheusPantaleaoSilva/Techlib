@@ -4,14 +4,11 @@ from models.indicacao import IndicacaoSemana
 from models.livro import Livro
 from database import db
 from decorators import role_required
-from datetime import date
-from datetime import datetime
+from datetime import date, datetime
 from sqlalchemy import and_
-
 
 indicacoes_bp = Blueprint("indicacoes_bp", __name__)
 
-# Buscar indicações da semana
 @indicacoes_bp.route("/indicacoes", methods=["GET"])
 @jwt_required()
 def livros_semana():
@@ -22,32 +19,35 @@ def livros_semana():
             IndicacaoSemana.data_fim >= hoje
         )
     ).all()
-    return jsonify([{
-        "id": i.id,
-        "livro_id": i.livro.id,
-        "nome": i.livro.nome,
-        "autor": i.livro.autor,
-        "data_inicio": i.data_inicio.isoformat(), 
-        "data_fim": i.data_fim.isoformat(),
-        "imagem_url": i.livro.imagem_url
-    } for i in indicacoes])
+    
+    resultado = []
+    for i in indicacoes:
+        livro_dados = i.livro.mostrar_dados()
+        livro_dados["id_indicacao"] = i.id
+        livro_dados["data_inicio"] = i.data_inicio.isoformat()
+        livro_dados["data_fim"] = i.data_fim.isoformat()
+        resultado.append(livro_dados)
 
-# Gerenciar indicações
+    return jsonify(resultado)
+
 @indicacoes_bp.route("/indicacoes", methods=["POST"])
 @jwt_required()
 @role_required("FUNCIONARIO")
 def criar_indicacao():
     data = request.get_json()
-    indicacao = IndicacaoSemana(
-        livro_id=data["livro_id"],
-        data_inicio=datetime.strptime(data["data_inicio"], "%Y-%m-%d").date(),
-        data_fim=datetime.strptime(data["data_fim"], "%Y-%m-%d").date()
-)
-    db.session.add(indicacao)
-    db.session.commit()
-    return jsonify({"msg": "Indicação criada com sucesso"}), 201
+    try:
+        indicacao = IndicacaoSemana(
+            livro_id=data["livro_id"],
+            data_inicio=datetime.strptime(data["data_inicio"], "%Y-%m-%d").date(),
+            data_fim=datetime.strptime(data["data_fim"], "%Y-%m-%d").date()
+        )
+        db.session.add(indicacao)
+        db.session.commit()
+        return jsonify({"msg": "Indicação criada com sucesso"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": "Erro ao criar indicação", "error": str(e)}), 400
 
-# Deletar uma indicação
 @indicacoes_bp.route("/indicacoes/<int:id>", methods=["DELETE"])
 @jwt_required()
 @role_required("FUNCIONARIO")

@@ -6,8 +6,6 @@ class Categoria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), unique=True, nullable=False)
 
-    livros = db.relationship("Livro", backref="categoria_obj", lazy=True)
-
     def mostrar_dados(self):
         return {
             "id": self.id,
