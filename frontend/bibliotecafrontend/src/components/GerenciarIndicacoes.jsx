@@ -44,11 +44,11 @@ const GerenciarIndicacoes = () => {
     const fetchDados = async () => {
       try {
         const [livrosRes, indicacoesRes] = await Promise.all([
-          // CORREÇÃO: Pedir muitos livros para o dropdown
+          // Pedir muitos livros para o dropdown
           api.get("/livros?per_page=1000"),
           api.get("/indicacoes"),
         ]);
-        // CORREÇÃO: Acessar a propriedade .livros da resposta paginada
+        // Acessar a propriedade .livros da resposta paginada
         setLivros(livrosRes.data.livros || []); 
         setIndicacoes(indicacoesRes.data);
       } catch (err) {
@@ -95,7 +95,8 @@ const GerenciarIndicacoes = () => {
   const deletarIndicacao = async (id) => {
     try {
       await api.delete(`/indicacoes/${id}`);
-      setIndicacoes((prev) => prev.filter((i) => i.id !== id));
+      // CORREÇÃO: Filtrar usando id_indicacao, pois 'id' aqui é o da indicação
+      setIndicacoes((prev) => prev.filter((i) => i.id_indicacao !== id));
     } catch (err) {
       console.error("Erro ao deletar:", err);
       setErro("Não foi possível remover a indicação.");
@@ -146,7 +147,7 @@ const GerenciarIndicacoes = () => {
             ) : (
               <List>
                 {indicacoes.map((ind, index) => (
-                  <React.Fragment key={ind.id}>
+                  <React.Fragment key={ind.id_indicacao || ind.id}> 
                     <ListItem alignItems="flex-start">
                       <ListItemAvatar>
                         <Avatar 
@@ -181,7 +182,8 @@ const GerenciarIndicacoes = () => {
                       
                       <ListItemSecondaryAction>
                         <Tooltip title="Remover Destaque">
-                          <IconButton edge="end" color="error" onClick={() => deletarIndicacao(ind.id)}>
+                          {/* CORREÇÃO: Usar ind.id_indicacao em vez de ind.id */}
+                          <IconButton edge="end" color="error" onClick={() => deletarIndicacao(ind.id_indicacao)}>
                             <DeleteIcon />
                           </IconButton>
                         </Tooltip>

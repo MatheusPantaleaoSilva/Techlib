@@ -36,15 +36,24 @@ def atualizar_pessoa(id):
         return jsonify({"error": "Pessoa não encontrada"}), 404
 
     data = request.json
+    
     pessoa.cpf = data.get("cpf", pessoa.cpf)
     pessoa.nome = data.get("nome", pessoa.nome)
     pessoa.idade = data.get("idade", pessoa.idade)
     pessoa.email = data.get("email", pessoa.email)
     pessoa.numero = data.get("numero", pessoa.numero)
-    pessoa.tipo = data.get("tipo", pessoa.tipo)
+    novo_tipo = data.get("tipo", pessoa.tipo)
+    pessoa.tipo = novo_tipo
 
-    db.session.commit()
-    return jsonify(pessoa.mostrar_dados()), 200
+    if pessoa.usuario:
+        pessoa.usuario.role = novo_tipo
+ 
+    try:
+        db.session.commit()
+        return jsonify(pessoa.mostrar_dados()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Erro ao atualizar dados", "msg": str(e)}), 400
 
 # Deletar pessoa
 @pessoas_bp.route("/pessoas/<int:id>", methods=["DELETE"])

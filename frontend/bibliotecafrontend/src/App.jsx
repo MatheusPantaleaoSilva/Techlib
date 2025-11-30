@@ -72,7 +72,7 @@ const App = () => (
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
 
-      <Box component="img" src="/marca_dagua.png" alt="Logo" sx={{ position: 'fixed', bottom: 20, right: 20, height: 60, width: 'auto', opacity: 0.5, pointerEvents: 'none', zIndex: 9999, userSelect: 'none' }} />
+      <Box component="img" src="/marca_dagua_logo.png" alt="Logo" sx={{ position: 'fixed', bottom: 20, right: 20, height: 60, width: 'auto', opacity: 0.5, pointerEvents: 'none', zIndex: 9999, userSelect: 'none' }} />
     </Router>
   </ThemeProvider>
 );

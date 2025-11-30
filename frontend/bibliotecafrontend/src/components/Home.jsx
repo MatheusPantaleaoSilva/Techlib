@@ -8,10 +8,8 @@ import {
   Stack
 } from "@mui/material";
 
-// Ícones para os botões
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 
 const Home = () => {
     const navigate = useNavigate();
@@ -23,7 +21,6 @@ const Home = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                // MUDANÇA AQUI: Nome da nova imagem
                 backgroundImage: 'url("/background_home.png")', 
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
@@ -39,7 +36,17 @@ const Home = () => {
         >
             <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
                 
-                <LocalLibraryIcon sx={{ fontSize: 80, color: 'primary.main', mb: 2 }} />
+                <Box 
+                    component="img"
+                    src="marca_dagua_logo.png" 
+                    alt="Logo Bibliotech"
+                    sx={{ 
+                        width: 120,   
+                        height: 'auto',
+                        mb: 2,       
+                        filter: 'drop-shadow(0px 4px 10px rgba(0,0,0,0.5))' 
+                    }}
+                />
 
                 <Typography 
                     variant="h2" 
