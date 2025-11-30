@@ -1,11 +1,10 @@
 import React from "react";
-import { AppBar, Toolbar, Button, Typography } from "@mui/material";
+import { AppBar, Toolbar, Button, Typography, Box } from "@mui/material"; // Adicionado Box
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
 
-  // Verifica o status de autenticação e role diretamente do localStorage
   const token = localStorage.getItem("token");
   const usuarioItem = localStorage.getItem("usuario");
   const usuario = usuarioItem ? JSON.parse(usuarioItem) : null;
@@ -21,57 +20,67 @@ export default function Navbar() {
 
   return (
     <AppBar position="static" sx={{ backgroundColor: '#2c3e50' }}>
-      <Toolbar>
-        {/* O botão "Biblioteca" já serve como Home/Dashboard */}
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          <Button color="inherit" component={Link} to={isAuthenticated ? "/dashboard" : "/"} sx={{ fontSize: '1.1rem' }}>
-            Bibliotech
-          </Button>
-        </Typography>
+      {/* justifyContent: 'center' -> Alinha o conteúdo central (Logo/Links) no meio do Toolbar.
+        position: 'relative' -> Permite posicionar o grupo da direita de forma absoluta em relação à barra.
+      */}
+      <Toolbar sx={{ justifyContent: 'center', position: 'relative' }}>
+        
+        {/* GRUPO CENTRAL: Logo + Links de Navegação */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="h6" component="div">
+              <Button color="inherit" component={Link} to={isAuthenticated ? "/dashboard" : "/"} sx={{ fontSize: '1.1rem' }}>
+                Bibliotech
+              </Button>
+            </Typography>
 
-        {!isAuthenticated ? (
-          <>
-            <Button color="inherit" component={Link} to="/">
-              Home
-            </Button>
-            <Button color="inherit" component={Link} to="/registrar">
-              Criar Conta
-            </Button>
-            <Button color="inherit" component={Link} to="/login">
-              Login
-            </Button>
-          </>
-        ) : (
-          <>
-            {/* REMOVIDO O BOTÃO DASHBOARD REDUNDANTE DAQUI */}
-            
-            <Button color="inherit" component={Link} to="/livros">
-              Livros
-            </Button>
-
-            {role === "FUNCIONARIO" && (
+            {!isAuthenticated ? (
               <>
-                <Button color="inherit" component={Link} to="/pessoas">
-                  Pessoas
+                <Button color="inherit" component={Link} to="/">
+                  Home
                 </Button>
-                <Button color="inherit" component={Link} to="/emprestimos">
-                  Empréstimos
+                <Button color="inherit" component={Link} to="/registrar">
+                  Criar Conta
                 </Button>
-                <Button color="inherit" component={Link} to="/indicacoes">
-                  Indicações
+                <Button color="inherit" component={Link} to="/login">
+                  Login
                 </Button>
-                <Button color="inherit" component={Link} to="/categorias">Categorias</Button>
+              </>
+            ) : (
+              <>
+                <Button color="inherit" component={Link} to="/livros">
+                  Livros
+                </Button>
+
+                {role === "FUNCIONARIO" && (
+                  <>
+                    <Button color="inherit" component={Link} to="/pessoas">
+                      Pessoas
+                    </Button>
+                    <Button color="inherit" component={Link} to="/emprestimos">
+                      Empréstimos
+                    </Button>
+                    <Button color="inherit" component={Link} to="/indicacoes">
+                      Indicações
+                    </Button>
+                    <Button color="inherit" component={Link} to="/categorias">Categorias</Button>
+                  </>
+                )}
               </>
             )}
+        </Box>
 
+        {/* GRUPO DIREITO: Perfil + Sair (Posicionado no canto direito absoluto) */}
+        {isAuthenticated && (
+          <Box sx={{ position: 'absolute', right: 24, display: 'flex', alignItems: 'center', gap: 2 }}>
             <Button color="inherit" component={Link} to="/perfil">
               Perfil
             </Button>
             <Button color="inherit" onClick={handleLogout} sx={{ color: '#ff8a80' }}>
               Sair
             </Button>
-          </>
+          </Box>
         )}
+
       </Toolbar>
     </AppBar>
   );

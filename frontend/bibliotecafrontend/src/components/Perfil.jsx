@@ -122,7 +122,7 @@ const Perfil = () => {
                             {usuario.nome}
                         </Typography>
                         <Typography variant="body2" color="text.secondary" mb={3}>
-                            {usuario.role === "FUNCIONARIO" ? "Funcionário da Biblioteca" : "Leitor Registado"}
+                            {usuario.role === "FUNCIONARIO" ? "Funcionário da Biblioteca" : "Leitor Registrado"}
                         </Typography>
 
                         <Divider sx={{ my: 2 }} />
