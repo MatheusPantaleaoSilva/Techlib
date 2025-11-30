@@ -66,7 +66,7 @@ def registrar():
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    login_input = data.get("username") # Pode ser email ou username
+    login_input = data.get("username")
     senha = data.get("senha")
 
     if not (login_input and senha):
@@ -91,23 +91,21 @@ def login():
             "id": usuario.id, 
             "username": usuario.username, 
             "role": usuario.role,
-            "nome": usuario.pessoa.nome # Retorna também o nome real
+            "nome": usuario.pessoa.nome
         }
     }), 200
 
 @auth_bp.route("/perfil", methods=["GET"])
 @jwt_required()
 def ver_perfil():
-    identity = get_jwt_identity()  # ID do Usuario
+    identity = get_jwt_identity()
     print("DEBUG: identity recebido do token:", identity)
 
-    # Busca o usuario
     usuario = Usuario.query.get(int(identity))
     if not usuario:
         print("DEBUG: Usuario não encontrado")
         return jsonify({"msg": "Usuário não encontrado"}), 404
 
-    # Busca a pessoa associada
     pessoa = Pessoa.query.get(usuario.pessoa_id)
     if not pessoa:
         print("DEBUG: Pessoa não encontrada")
@@ -136,7 +134,7 @@ def atualizar_perfil():
         pessoa.idade = data.get("idade", pessoa.idade)
 
         if data.get("senha"):
-            usuario.set_senha(data["senha"])  # mantém senha no Usuario
+            usuario.set_senha(data["senha"])
 
         db.session.commit()
         return jsonify({"msg": "Perfil atualizado com sucesso", "usuario": pessoa.mostrar_dados()})

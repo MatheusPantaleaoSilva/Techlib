@@ -10,7 +10,6 @@ from flask_jwt_extended import jwt_required, get_jwt
 
 emprestimos_bp = Blueprint("emprestimos", __name__)
 
-# Criar empréstimo
 @emprestimos_bp.route("/emprestimos", methods=["POST"])
 @jwt_required()
 @role_required("FUNCIONARIO")
@@ -33,16 +32,12 @@ def criar_emprestimo():
         if not livro:
             return jsonify({"msg": "Livro não encontrado"}), 404
             
-        # --- NOVA LÓGICA DE ESTOQUE ---
-        # Conta quantos exemplares deste livro estão emprestados (data_devolucao IS NULL)
         emprestimos_ativos = Emprestimo.query.filter_by(livro_id=livro_id, data_devolucao=None).count()
         
-        # Se todos os exemplares estiverem fora, bloqueia
         if emprestimos_ativos >= livro.quantidade:
             return jsonify({
                 "msg": f"Estoque esgotado! Todos os {livro.quantidade} exemplares estão emprestados."
             }), 400
-        # ------------------------------
 
         emprestimo = Emprestimo(
             pessoa_id=pessoa_id,
@@ -75,7 +70,6 @@ def devolver_emprestimo(id):
         return jsonify({"msg": "Este empréstimo já foi devolvido anteriormente"}), 400
 
     try:
-        # Define a data de devolução como HOJE (objeto date)
         emprestimo.data_devolucao = date.today()
         db.session.commit()
 
@@ -93,14 +87,12 @@ def devolver_emprestimo(id):
 def meus_emprestimos():
     claims = get_jwt()
     pessoa_id = claims.get("pessoa_id")
-    # Se o JWT não tiver pessoa_id (ex: admin puro), tratar erro
     if not pessoa_id:
          return jsonify([])
          
     emprestimos = Emprestimo.query.filter_by(pessoa_id=pessoa_id).all()
     return jsonify([e.mostrar_dados() for e in emprestimos])
 
-# Listar todos os empréstimos
 @emprestimos_bp.route("/emprestimos", methods=["GET"])
 @jwt_required()
 @role_required("CLIENTE", "FUNCIONARIO")
@@ -108,7 +100,6 @@ def listar_emprestimos():
     emprestimos = Emprestimo.query.all()
     return jsonify([e.mostrar_dados() for e in emprestimos])
 
-# Buscar empréstimo por ID
 @emprestimos_bp.route("/emprestimos/<int:id>", methods=["GET"])
 @jwt_required()
 @role_required("CLIENTE", "FUNCIONARIO")
@@ -118,7 +109,6 @@ def buscar_emprestimo(id):
         return jsonify({"msg": "Empréstimo não encontrado"}), 404
     return jsonify(e.mostrar_dados())
 
-# Deletar empréstimo
 @emprestimos_bp.route("/emprestimos/<int:id>", methods=["DELETE"])
 @jwt_required()
 @role_required("FUNCIONARIO")
@@ -149,23 +139,18 @@ def relatorios():
     atrasados = 0
     for e in emprestimos:
         if e.data_devolucao is None:
-            # Como agora e.data_emprestimo JÁ É um objeto date, não precisamos de strptime
-            # Isso simplifica e evita erros de formato
             prazo = e.data_emprestimo + timedelta(days=7)
             if hoje > prazo:
                 atrasados += 1
 
-    # Livros mais emprestados
     livros_count = {}
     for e in emprestimos:
-        # Proteção se livro for deletado mas empréstimo existir
         nome_livro = e.livro.nome if e.livro else "Livro Deletado"
         livros_count[nome_livro] = livros_count.get(nome_livro, 0) + 1
         
     livros_mais_emprestados = [{"nome": nome, "qtd": qtd} 
                                for nome, qtd in livros_count.items()]
     
-    # Ordenar top 5
     livros_mais_emprestados.sort(key=lambda x: x["qtd"], reverse=True)
 
     return jsonify({

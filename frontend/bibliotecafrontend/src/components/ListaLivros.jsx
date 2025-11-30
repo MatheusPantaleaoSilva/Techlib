@@ -5,7 +5,6 @@ import {
   Container, Grid, Card, CardMedia, CardContent, CardActions, Typography, Button, Box, CircularProgress, Alert, Chip, TextField, InputAdornment, Pagination, IconButton, FormControlLabel, Switch
 } from "@mui/material";
 
-// Ícones
 import SearchIcon from '@mui/icons-material/Search';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -130,7 +129,6 @@ const ListaLivros = () => {
                   <Card 
                     onClick={() => irParaDetalhes(livro.id)}
                     sx={{ 
-                        // --- 1. ALTURA FIXA GERAL ---
                         height: '480px', 
                         width: '100%',
                         display: 'flex', 
@@ -156,7 +154,6 @@ const ListaLivros = () => {
                     )}
                     {isArquivado && <Chip label="ARQUIVADO" color="warning" size="small" icon={<ArchiveIcon />} sx={{ position: 'absolute', top: 10, right: 10, zIndex: 10, fontWeight: 'bold' }} />}
 
-                    {/* --- 2. IMAGEM FIXA --- */}
                     <CardMedia 
                         component="img" 
                         height="220" 
@@ -168,7 +165,6 @@ const ListaLivros = () => {
                     
                     <CardContent sx={{ flexGrow: 1, pb: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                       
-                      {/* --- 3. ÁREA DE CATEGORIAS FIXA (35px) --- */}
                       <Box display="flex" justifyContent="space-between" alignItems="center" mb={1} sx={{ height: '35px', overflow: 'hidden' }}>
                           <Box display="flex" gap={0.5} flexWrap="wrap" sx={{ height: '100%', overflow: 'hidden', alignItems: 'center' }}>
                             {livro.categorias && livro.categorias.length > 0 ? (
@@ -193,7 +189,6 @@ const ListaLivros = () => {
                           )}
                       </Box>
                       
-                      {/* --- 4. TÍTULO FIXO (2.6em ~ 2 linhas) --- */}
                       <Typography 
                         gutterBottom 
                         variant="h6" 
@@ -202,7 +197,7 @@ const ListaLivros = () => {
                         mt={1}
                         title={livro.nome}
                         sx={{ 
-                            height: '2.6em', // Altura reservada
+                            height: '2.6em',
                             overflow: 'hidden',
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
@@ -212,7 +207,6 @@ const ListaLivros = () => {
                         {livro.nome}
                       </Typography>
 
-                      {/* --- 5. AUTOR FIXO (1.5em ~ 1 linha) --- */}
                       <Typography 
                         variant="body2" 
                         color="text.secondary" 
@@ -224,12 +218,11 @@ const ListaLivros = () => {
                       </Typography>
                     </CardContent>
 
-                    {/* --- 6. BOTÕES (Rodapé Fixo) --- */}
                     <CardActions sx={{ 
                         p: 2, 
                         pt: 0, 
-                        mt: 'auto', // Empurra para o fundo
-                        height: '60px', // Altura reservada para os botões
+                        mt: 'auto',
+                        height: '60px',
                         justifyContent: 'space-between',
                         alignItems: 'center'
                     }}>

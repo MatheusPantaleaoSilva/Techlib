@@ -19,7 +19,6 @@ import {
   Tooltip
 } from "@mui/material";
 
-// Agora estamos usando este ícone no botão abaixo
 import EditIcon from '@mui/icons-material/Edit';
 
 const ListaPessoas = () => {

@@ -10,8 +10,6 @@ from routes.categorias import categorias_bp
 from flask_jwt_extended import JWTManager
 import os 
 from datetime import timedelta
-
-# Importar os modelos necessários para criar o admin
 from models.usuario import Usuario
 from models.pessoa import Pessoa
 
@@ -19,13 +17,11 @@ app = Flask(__name__)
 init_db(app)
 CORS(app)
 
-# LER A CHAVE DO .ENV
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "chave_padrao_insegura_dev")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=5)
 
 jwt = JWTManager(app)
 
-# Cria a tabela e o admin padrão
 with app.app_context():
     try:
         db.create_all()

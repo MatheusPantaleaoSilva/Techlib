@@ -10,7 +10,6 @@ class Emprestimo(db.Model):
     pessoa_id = db.Column(db.Integer, db.ForeignKey("pessoas.id"), nullable=False)
     livro_id = db.Column(db.Integer, db.ForeignKey("livros.id"), nullable=False)
     
-    # MUDANÇA AQUI: De String para Date
     data_emprestimo = db.Column(db.Date, nullable=False)
     data_devolucao = db.Column(db.Date, nullable=True)
 
@@ -20,11 +19,9 @@ class Emprestimo(db.Model):
     def mostrar_dados(self):
         status = "ativo" if not self.data_devolucao else "devolvido"
         
-        # Conversão segura para string
         data_emp_str = self.data_emprestimo.isoformat() if self.data_emprestimo else None
         data_dev_str = self.data_devolucao.isoformat() if self.data_devolucao else None
         
-        # Carregar relacionamentos (opcional, dependendo da query, mas seguro manter assim)
         pessoa_obj = Pessoa.query.get(self.pessoa_id)
         livro_obj = Livro.query.get(self.livro_id)
 

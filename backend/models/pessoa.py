@@ -10,7 +10,7 @@ class Pessoa(db.Model):
     __tablename__ = "pessoas"
 
     id = db.Column(db.Integer, primary_key=True)
-    cpf = db.Column(db.String(14), unique=True, nullable=False) # Aumentei tamanho por segurança
+    cpf = db.Column(db.String(14), unique=True, nullable=False)
     nome = db.Column(db.String(100), nullable=False)
     idade = db.Column(db.Integer, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)

@@ -8,7 +8,7 @@ import ListaPessoas from "./components/ListaPessoas";
 import ListaLivros from "./components/ListaLivros";
 import NovoLivro from "./components/NovoLivro";
 import EditarLivro from "./components/EditarLivro";
-import DetalhesLivro from "./components/DetalhesLivro"; // <--- NOVO IMPORT
+import DetalhesLivro from "./components/DetalhesLivro"; 
 import EditarPessoa from "./components/EditarPessoa";
 import Login from "./components/Login";
 import CadastroCliente from "./components/CadastroCliente";
@@ -46,26 +46,16 @@ const App = () => (
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registrar" element={<CadastroCliente />} />
-
-        {/* Dashboard */}
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        
-        {/* Funcionário */}
         <Route path="/emprestimos" element={<PrivateRoute role="FUNCIONARIO"><GerenciarEmprestimos /></PrivateRoute>} />
         <Route path="/pessoas" element={<PrivateRoute role="FUNCIONARIO"><ListaPessoas /></PrivateRoute>} />
         <Route path="/pessoas/editar/:id" element={<PrivateRoute role="FUNCIONARIO"><EditarPessoa /></PrivateRoute>} />
         <Route path="/indicacoes" element={<PrivateRoute role="FUNCIONARIO"><GerenciarIndicacoes /></PrivateRoute>} />
         <Route path="/categorias" element={<PrivateRoute role="FUNCIONARIO"><GerenciarCategorias /></PrivateRoute>} />
-
-        {/* Livros */}
         <Route path="/livros" element={<PrivateRoute><ListaLivros /></PrivateRoute>} />
         <Route path="/livros/novo" element={<PrivateRoute><NovoLivro /></PrivateRoute>} />
         <Route path="/livros/editar/:id" element={<PrivateRoute><EditarLivro /></PrivateRoute>} />
-        
-        {/* NOVA ROTA DE DETALHES */}
         <Route path="/livros/detalhes/:id" element={<PrivateRoute><DetalhesLivro /></PrivateRoute>} />
-
-        {/* Perfil */}
         <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
         <Route path="/perfil/editar" element={<PrivateRoute><EditarPerfil /></PrivateRoute>} />
 

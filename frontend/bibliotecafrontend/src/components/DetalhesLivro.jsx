@@ -48,7 +48,6 @@ const DetalhesLivro = () => {
         </Button>
 
         <Grid container spacing={4}>
-          {/* Capa do Livro */}
           <Grid item xs={12} sm={5} md={4}>
             <Box
               component="img"
@@ -66,7 +65,6 @@ const DetalhesLivro = () => {
             />
           </Grid>
 
-          {/* Informações */}
           <Grid item xs={12} sm={7} md={8}>
             <Box display="flex" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" gap={1}>
                <Typography variant="h4" fontWeight="bold" color="primary" sx={{ lineHeight: 1.2 }}>

@@ -3,14 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../services/Api";
 import {
   Container, Grid, Card, CardContent, Typography, Button, Box, CircularProgress,
-  Paper, Divider, List, ListItem, ListItemAvatar, Avatar, ListItemText, Chip, CardMedia, CardActions, IconButton, Alert // <--- Alert ADICIONADO AQUI
+  Paper, Divider, List, ListItem, ListItemAvatar, Avatar, ListItemText, Chip, CardMedia, CardActions, IconButton, Alert 
 } from "@mui/material";
 import {
   PieChart, Pie, Cell, Tooltip as RechartsTooltip, Legend, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, ResponsiveContainer
 } from "recharts";
 
-// Ícones
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import PeopleIcon from '@mui/icons-material/People';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -28,7 +27,7 @@ const Dashboard = () => {
   const [usuario] = useState(JSON.parse(localStorage.getItem("usuario")) || {});
   const [livrosIndicados, setLivrosIndicados] = useState([]);
   const [meusEmprestimos, setMeusEmprestimos] = useState([]);
-  const [meusFavoritosIds, setMeusFavoritosIds] = useState([]); // Novo estado para favoritos
+  const [meusFavoritosIds, setMeusFavoritosIds] = useState([]);
   const [relatorio, setRelatorio] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -41,7 +40,6 @@ const Dashboard = () => {
       try {
         setLoading(true);
         
-        // Busca indicações (agora com dados completos)
         const resIndicacoes = await api.get("/indicacoes");
         setLivrosIndicados(resIndicacoes.data);
 
@@ -49,7 +47,6 @@ const Dashboard = () => {
           const resRelatorio = await api.get("/relatorios");
           setRelatorio(resRelatorio.data);
         } else {
-          // Cliente: Busca empréstimos e favoritos
           const [resMeus, resFavs] = await Promise.all([
             api.get("/meus-emprestimos"),
             api.get("/livros/meus-favoritos-ids")
@@ -67,7 +64,6 @@ const Dashboard = () => {
     fetchData();
   }, [usuario.role]);
 
-  // Função de Favoritar (Mesma lógica da Lista)
   const handleFavoritar = async (e, id) => {
     e.stopPropagation(); 
     try {
@@ -84,7 +80,6 @@ const Dashboard = () => {
     navigate(`/livros/detalhes/${id}`);
   };
 
-  // Dados para gráficos (apenas funcionário)
   const pieData = relatorio ? [
     { name: "Ativos", value: relatorio.ativos },
     { name: "Devolvidos", value: relatorio.devolvidos },
@@ -102,8 +97,6 @@ const Dashboard = () => {
     );
   }
 
-  // --- COMPONENTES AUXILIARES ---
-  
   const CardAcessoRapido = () => (
     <Paper elevation={3} sx={{ p: 3, borderRadius: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h6" gutterBottom fontWeight="bold">Menu Rápido</Typography>
@@ -128,7 +121,6 @@ const Dashboard = () => {
     </Paper>
   );
 
-  // Lista simples de destaques (usada apenas no painel de ADMIN agora)
   const ListaDestaquesSimples = () => (
     <Paper elevation={3} sx={{ p: 3, borderRadius: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h6" gutterBottom fontWeight="bold" color="warning.main">
@@ -195,7 +187,6 @@ const Dashboard = () => {
       </Box>
 
       {usuario.role === "FUNCIONARIO" ? (
-        // === LAYOUT FUNCIONÁRIO (Mantido) ===
         <Grid container spacing={3} alignItems="stretch" justifyContent="center">
           <Grid item xs={12} md={6} lg={3}><CardAcessoRapido /></Grid>
           <Grid item xs={12} md={6} lg={3}><ListaDestaquesSimples /></Grid>
@@ -233,10 +224,8 @@ const Dashboard = () => {
           </Grid>
         </Grid>
       ) : (
-        // === LAYOUT CLIENTE (Novo: Destaques como Cards) ===
         <Box>
             
-            {/* SEÇÃO DE DESTAQUES (LIVROS RECOMENDADOS) */}
             <Box mb={5}>
                 <Typography variant="h5" fontWeight="bold" color="warning.main" mb={3} display="flex" alignItems="center" gap={1}>
                     <StarIcon /> Destaques da Semana
@@ -253,13 +242,12 @@ const Dashboard = () => {
                             const isFavorito = meusFavoritosIds.includes(livro.id);
                             const isArquivado = livro.ativo === false;
 
-                            // MANTENDO EXATAMENTE O MESMO DESIGN E TAMANHO DO LISTALIVROS
                             return (
                                 <Grid item key={livro.id} xs={12} sm={6} md={4} lg={3} sx={{ display: 'flex' }}>
                                     <Card 
                                         onClick={() => irParaDetalhes(livro.id)}
                                         sx={{ 
-                                            height: '480px', // Altura fixa igual
+                                            height: '480px',
                                             width: '100%',
                                             display: 'flex', 
                                             flexDirection: 'column', 
@@ -341,8 +329,6 @@ const Dashboard = () => {
             </Box>
 
             <Divider sx={{ my: 4 }} />
-
-            {/* SEÇÃO INFERIOR: CARTÕES DE ACESSO */}
             <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                     <CardAcessoRapido />

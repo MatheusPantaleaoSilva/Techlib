@@ -19,7 +19,6 @@ import {
   MenuItem
 } from "@mui/material";
 
-// Ícones
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -41,7 +40,6 @@ const EditarPessoa = () => {
   const [erro, setErro] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
 
-  // Carregar dados da pessoa
   useEffect(() => {
     const fetchPessoa = async () => {
       try {
@@ -111,7 +109,6 @@ const EditarPessoa = () => {
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         
-        {/* Cabeçalho com Voltar e Título */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <Box display="flex" alignItems="center" gap={1}>
             <Button startIcon={<ArrowBackIcon />} onClick={() => navigate("/pessoas")}>
@@ -137,7 +134,6 @@ const EditarPessoa = () => {
         <form onSubmit={handleUpdate}>
           <Grid container spacing={3}>
             
-            {/* Nome Completo */}
             <Grid item xs={12}>
               <TextField
                 label="Nome Completo"
@@ -149,7 +145,6 @@ const EditarPessoa = () => {
               />
             </Grid>
 
-            {/* Email */}
             <Grid item xs={12} sm={8}>
               <TextField
                 label="Email"
@@ -162,7 +157,6 @@ const EditarPessoa = () => {
               />
             </Grid>
 
-            {/* Idade */}
             <Grid item xs={12} sm={4}>
               <TextField
                 label="Idade"
@@ -175,7 +169,6 @@ const EditarPessoa = () => {
               />
             </Grid>
 
-            {/* CPF (Desabilitado para edição direta idealmente, mas mantive editável conforme original) */}
             <Grid item xs={12} sm={6}>
               <TextField
                 label="CPF"
@@ -184,12 +177,11 @@ const EditarPessoa = () => {
                 onChange={handleChange}
                 fullWidth
                 required
-                disabled // Geralmente não se altera CPF, mas remova esta prop se quiser permitir
+                disabled
                 helperText="CPF não pode ser alterado"
               />
             </Grid>
 
-            {/* Telefone */}
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Telefone / Contato"
@@ -201,7 +193,6 @@ const EditarPessoa = () => {
               />
             </Grid>
 
-            {/* Tipo de Utilizador (Select) */}
             <Grid item xs={12}>
               <TextField
                 select
@@ -218,7 +209,6 @@ const EditarPessoa = () => {
               </TextField>
             </Grid>
 
-            {/* Botões de Ação */}
             <Grid item xs={12} display="flex" justifyContent="flex-end" gap={2}>
               <Button 
                 variant="outlined" 
@@ -239,7 +229,6 @@ const EditarPessoa = () => {
         </form>
       </Paper>
 
-      {/* Modal de Confirmação de Exclusão */}
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}

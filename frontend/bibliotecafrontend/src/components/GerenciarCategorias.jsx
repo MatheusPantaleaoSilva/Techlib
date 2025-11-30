@@ -57,7 +57,6 @@ const GerenciarCategorias = () => {
       </Typography>
 
       <Grid container spacing={4}>
-        {/* Formulário */}
         <Grid item xs={12} md={5}>
           <Paper elevation={3} sx={{ p: 3 }}>
             <Typography variant="h6" mb={2}>Nova Categoria</Typography>
@@ -84,7 +83,6 @@ const GerenciarCategorias = () => {
           </Paper>
         </Grid>
 
-        {/* Lista */}
         <Grid item xs={12} md={7}>
           <Paper elevation={3} sx={{ p: 0, overflow: 'hidden' }}>
             <Box p={2} bgcolor="primary.main" color="white">

@@ -34,8 +34,6 @@ const GerenciarIndicacoes = () => {
   const [indicacoes, setIndicacoes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
-
-  // Estados do Formulário
   const [livroSelecionado, setLivroSelecionado] = useState("");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
@@ -44,11 +42,9 @@ const GerenciarIndicacoes = () => {
     const fetchDados = async () => {
       try {
         const [livrosRes, indicacoesRes] = await Promise.all([
-          // Pedir muitos livros para o dropdown
           api.get("/livros?per_page=1000"),
           api.get("/indicacoes"),
         ]);
-        // Acessar a propriedade .livros da resposta paginada
         setLivros(livrosRes.data.livros || []); 
         setIndicacoes(indicacoesRes.data);
       } catch (err) {
@@ -77,11 +73,9 @@ const GerenciarIndicacoes = () => {
         data_fim: dataFim
       });
 
-      // Atualizar a lista de indicações
       const res = await api.get("/indicacoes");
       setIndicacoes(res.data);
 
-      // Limpar form
       setLivroSelecionado("");
       setDataInicio("");
       setDataFim("");
@@ -95,7 +89,6 @@ const GerenciarIndicacoes = () => {
   const deletarIndicacao = async (id) => {
     try {
       await api.delete(`/indicacoes/${id}`);
-      // CORREÇÃO: Filtrar usando id_indicacao, pois 'id' aqui é o da indicação
       setIndicacoes((prev) => prev.filter((i) => i.id_indicacao !== id));
     } catch (err) {
       console.error("Erro ao deletar:", err);
@@ -103,7 +96,6 @@ const GerenciarIndicacoes = () => {
     }
   };
 
-  // Helper para formatar data
   const formatarData = (dataISO) => {
     if (!dataISO) return "";
     const [ano, mes, dia] = dataISO.split("-");
@@ -131,7 +123,6 @@ const GerenciarIndicacoes = () => {
 
       <Grid container spacing={4}>
         
-        {/* === COLUNA DA ESQUERDA: Lista de Indicações Atuais === */}
         <Grid item xs={12} md={7}>
           <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
             <Box p={2} bgcolor="primary.main" color="white">
@@ -182,7 +173,6 @@ const GerenciarIndicacoes = () => {
                       
                       <ListItemSecondaryAction>
                         <Tooltip title="Remover Destaque">
-                          {/* CORREÇÃO: Usar ind.id_indicacao em vez de ind.id */}
                           <IconButton edge="end" color="error" onClick={() => deletarIndicacao(ind.id_indicacao)}>
                             <DeleteIcon />
                           </IconButton>
@@ -197,7 +187,6 @@ const GerenciarIndicacoes = () => {
           </Paper>
         </Grid>
 
-        {/* === COLUNA DA DIREITA: Formulário de Nova Indicação === */}
         <Grid item xs={12} md={5}>
           <Paper elevation={3} sx={{ p: 3, borderRadius: 2, position: 'sticky', top: 20 }}>
             <Box display="flex" alignItems="center" gap={1} mb={3}>

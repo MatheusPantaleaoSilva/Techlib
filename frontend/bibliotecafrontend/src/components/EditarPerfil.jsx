@@ -13,7 +13,6 @@ import {
   CircularProgress
 } from "@mui/material";
 
-// Ícones
 import SaveIcon from '@mui/icons-material/Save';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -32,7 +31,6 @@ const EditarPerfil = () => {
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState({ type: "", text: "" });
 
-  // Carregar dados do utilizador logado
   useEffect(() => {
     const fetchUsuario = async () => {
       try {
@@ -97,7 +95,6 @@ const EditarPerfil = () => {
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         
-        {/* Cabeçalho */}
         <Box display="flex" alignItems="center" gap={2} mb={3}>
           <Button 
             startIcon={<ArrowBackIcon />} 
@@ -120,7 +117,6 @@ const EditarPerfil = () => {
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             
-            {/* Nome */}
             <Grid item xs={12}>
               <TextField
                 label="Nome Completo"
@@ -132,7 +128,6 @@ const EditarPerfil = () => {
               />
             </Grid>
 
-            {/* CPF e Idade */}
             <Grid item xs={12} sm={6}>
               <TextField
                 label="CPF"
@@ -154,7 +149,6 @@ const EditarPerfil = () => {
               />
             </Grid>
 
-            {/* Contatos */}
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Email"
@@ -177,7 +171,6 @@ const EditarPerfil = () => {
               />
             </Grid>
 
-            {/* Alterar Senha (LINHA INTEIRA PARA ELE) */}
             <Grid item xs={12}>
               <Box mt={2} p={2} bgcolor="#f9f9f9" borderRadius={1}>
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
@@ -196,12 +189,10 @@ const EditarPerfil = () => {
               </Box>
             </Grid>
 
-            {/* Botões (NOVA LINHA INTEIRA, ALINHADOS À DIREITA) */}
             <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
               <Button 
                 variant="outlined" 
                 onClick={() => navigate("/perfil")}
-                // Botão Cancelar simples
               >
                 Cancelar
               </Button>
@@ -210,7 +201,6 @@ const EditarPerfil = () => {
                 variant="contained" 
                 color="primary"
                 startIcon={<SaveIcon />}
-                // Botão Salvar padrão
               >
                 Salvar Alterações
               </Button>

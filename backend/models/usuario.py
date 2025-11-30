@@ -8,9 +8,7 @@ class Usuario(db.Model):
     pessoa_id = db.Column(db.Integer, db.ForeignKey("pessoas.id"), nullable=False)
     username = db.Column(db.String(100), unique=True, nullable=False)
     senha_hash = db.Column(db.String(200), nullable=False)
-    role = db.Column(db.String(50), nullable=False, default="CLIENTE")  # CLIENTE ou FUNCIONARIO
-
-    # Relacionamento com Pessoa (import indireto para evitar erro de import circular)
+    role = db.Column(db.String(50), nullable=False, default="CLIENTE")
     pessoa = db.relationship("Pessoa", back_populates="usuario")
 
     def set_senha(self, senha):

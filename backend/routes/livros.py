@@ -136,7 +136,6 @@ def atualizar_livro(id):
         livro.nome = data.get("nome", livro.nome)
         livro.autor = data.get("autor", livro.autor)
         livro.isbn = data.get("isbn", livro.isbn)
-        # Atualiza a descrição
         if "descricao" in data:
             livro.descricao = data["descricao"][:500]
 

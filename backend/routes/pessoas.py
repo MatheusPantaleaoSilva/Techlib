@@ -7,8 +7,6 @@ from flask_jwt_extended import jwt_required
 
 pessoas_bp = Blueprint("pessoas", __name__)
 
-
-# Listar todas as pessoas
 @pessoas_bp.route("/pessoas", methods=["GET"])
 @jwt_required()
 @role_required("FUNCIONARIO")
@@ -16,7 +14,6 @@ def listar_pessoas():
     pessoas = Pessoa.query.all()
     return jsonify([p.mostrar_dados() for p in pessoas]), 200
 
-# Buscar pessoa por ID
 @pessoas_bp.route("/pessoas/<int:id>", methods=["GET"])
 @jwt_required()
 @role_required("FUNCIONARIO")
@@ -26,7 +23,6 @@ def buscar_pessoa(id):
         return jsonify({"error": "Pessoa não encontrada"}), 404
     return jsonify(pessoa.mostrar_dados()), 200
 
-# Atualizar pessoa
 @pessoas_bp.route("/pessoas/<int:id>", methods=["PUT"])
 @jwt_required()
 @role_required("FUNCIONARIO")
@@ -55,7 +51,6 @@ def atualizar_pessoa(id):
         db.session.rollback()
         return jsonify({"error": "Erro ao atualizar dados", "msg": str(e)}), 400
 
-# Deletar pessoa
 @pessoas_bp.route("/pessoas/<int:id>", methods=["DELETE"])
 @jwt_required()
 @role_required("FUNCIONARIO")
@@ -76,5 +71,5 @@ def delete_pessoa(id):
 
     except Exception as e:
         db.session.rollback()  
-        print("Erro ao deletar pessoa:", e) # Isso mostra o erro detalhado no terminal do backend
+        print("Erro ao deletar pessoa:", e)
         return {"msg": f"Erro ao deletar pessoa: {str(e)}"}, 500

@@ -3,20 +3,19 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#00bcd4', // O Azul Ciano (LibraryBlue)
+      main: '#00bcd4',
       contrastText: '#fff', 
     },
     secondary: {
-      main: '#2c3e50', // O Azul Escuro do Navbar
+      main: '#2c3e50',
     },
     background: {
-      // MUDANÇA AQUI: De cinza (#f4f6f8) para Azul Suave (#e3f2fd)
       default: '#e3f2fd', 
       paper: '#ffffff',
     },
     text: {
       primary: '#2c3e50',
-      secondary: '#546e7a', // Ajustado levemente para combinar com o fundo azul
+      secondary: '#546e7a', 
     },
   },
   typography: {

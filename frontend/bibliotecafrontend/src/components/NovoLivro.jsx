@@ -15,11 +15,10 @@ import {
   Chip
 } from "@mui/material";
 
-// Ícones
 import SaveIcon from '@mui/icons-material/Save';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
-import DescriptionIcon from '@mui/icons-material/Description'; // Novo ícone
+import DescriptionIcon from '@mui/icons-material/Description';
 
 const NovoLivro = () => {
   const navigate = useNavigate();
@@ -31,7 +30,7 @@ const NovoLivro = () => {
     autor: "",
     isbn: "",
     categoria_ids: [],
-    descricao: "", // Novo campo de estado
+    descricao: "", 
     imagemUrl: "",
     quantidade: 1
   });
@@ -71,7 +70,7 @@ const NovoLivro = () => {
         autor: form.autor,
         isbn: form.isbn,
         categoria_ids: form.categoria_ids,
-        descricao: form.descricao, // Envia a descrição
+        descricao: form.descricao,
         imagem_url: form.imagemUrl,
         quantidade: parseInt(form.quantidade)
       });
@@ -158,7 +157,6 @@ const NovoLivro = () => {
               </TextField>
             </Grid>
 
-            {/* CAMPO DE DESCRIÇÃO NOVO */}
             <Grid item xs={12}>
               <TextField
                 label="Descrição / Sinopse"

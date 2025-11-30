@@ -48,12 +48,10 @@ const GerenciarEmprestimos = () => {
         const [empRes, pesRes, livRes] = await Promise.all([
           api.get("/emprestimos"),
           api.get("/pessoas"),
-          // CORREÇÃO: Pedir muitos livros para o dropdown não ficar vazio
           api.get("/livros?per_page=1000"), 
         ]);
         setEmprestimos(empRes.data);
         setPessoas(pesRes.data);
-        // CORREÇÃO: Acessar a propriedade .livros da resposta paginada
         setLivros(livRes.data.livros || []); 
       } catch (err) {
         console.error("Erro ao buscar dados:", err);

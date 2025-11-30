@@ -20,12 +20,8 @@ export default function Navbar() {
 
   return (
     <AppBar position="static" sx={{ backgroundColor: '#2c3e50' }}>
-      {/* justifyContent: 'space-between' -> Empurra o primeiro filho para a esquerda
-         e o último filho para a direita.
-      */}
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         
-        {/* --- CANTO ESQUERDO: Apenas o Logo --- */}
         <Typography variant="h6" component="div">
           <Button 
             color="inherit" 
@@ -37,11 +33,9 @@ export default function Navbar() {
           </Button>
         </Typography>
 
-        {/* --- CANTO DIREITO: Todo o resto (Links + Perfil + Sair) --- */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             
             {!isAuthenticated ? (
-              // Visitante (Não logado)
               <>
                 <Button color="inherit" component={Link} to="/">
                   Home
@@ -60,7 +54,6 @@ export default function Navbar() {
                 </Button>
               </>
             ) : (
-              // Utilizador Logado
               <>
                 <Button color="inherit" component={Link} to="/livros">
                   Livros
@@ -83,7 +76,6 @@ export default function Navbar() {
                   </>
                 )}
 
-                {/* Separador Visual Pequeno */}
                 <Box sx={{ height: '24px', width: '1px', bgcolor: 'rgba(255,255,255,0.3)', mx: 2 }} />
 
                 <Button color="inherit" component={Link} to="/perfil">

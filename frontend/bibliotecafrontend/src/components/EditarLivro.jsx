@@ -21,13 +21,12 @@ import {
   Chip
 } from "@mui/material";
 
-// Ícones
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
-import DescriptionIcon from '@mui/icons-material/Description'; // Novo ícone
+import DescriptionIcon from '@mui/icons-material/Description'; 
 
 const EditarLivro = () => {
   const { id } = useParams();
@@ -39,7 +38,7 @@ const EditarLivro = () => {
     autor: "",
     isbn: "",
     categoria_ids: [],
-    descricao: "", // Novo campo de estado
+    descricao: "",
     dataAquisicao: "",
     imagemUrl: "",
     quantidade: 1,
@@ -60,10 +59,7 @@ const EditarLivro = () => {
         ]);
 
         setCategorias(resCats.data);
-        
         const livro = resLivro.data;
-        
-        // Extrai apenas os IDs da lista de objetos categoria
         const idsCats = livro.categorias ? livro.categorias.map(c => c.id) : [];
 
         setForm({
@@ -71,7 +67,7 @@ const EditarLivro = () => {
           autor: livro.autor || "",
           isbn: livro.isbn || "",
           categoria_ids: idsCats,
-          descricao: livro.descricao || "", // Carrega descrição
+          descricao: livro.descricao || "",
           dataAquisicao: livro.data_aquisicao || "",
           imagemUrl: livro.imagem_url || "",
           quantidade: livro.quantidade || 1,
@@ -104,7 +100,7 @@ const EditarLivro = () => {
         autor: form.autor,
         isbn: form.isbn,
         categoria_ids: form.categoria_ids,
-        descricao: form.descricao, // Envia descrição atualizada
+        descricao: form.descricao,
         imagem_url: form.imagemUrl,
         quantidade: parseInt(form.quantidade),
         ativo: form.ativo
@@ -247,7 +243,6 @@ const EditarLivro = () => {
               </TextField>
             </Grid>
 
-            {/* CAMPO DE DESCRIÇÃO EDITÁVEL */}
             <Grid item xs={12}>
               <TextField
                 label="Descrição / Sinopse"

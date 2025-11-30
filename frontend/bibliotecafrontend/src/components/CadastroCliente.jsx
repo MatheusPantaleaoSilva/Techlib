@@ -109,7 +109,6 @@ const CadastroCliente = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                // MUDANÇA AQUI: Nome da nova imagem
                 backgroundImage: 'url("/background_home.png")',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',

@@ -25,11 +25,10 @@ import {
   Alert
 } from "@mui/material";
 
-// Ícones
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
-import CakeIcon from '@mui/icons-material/Cake'; // Para idade
+import CakeIcon from '@mui/icons-material/Cake'; 
 import EditIcon from '@mui/icons-material/Edit';
 import BookIcon from '@mui/icons-material/Book';
 
@@ -67,11 +66,8 @@ const Perfil = () => {
             navigate("/login");
         }
     }, [token, navigate, fetchDados]);
-
-    // Lógica de Status Visual (MUI Chip)
     const getStatusChip = (e) => {
         const hoje = new Date();
-        // Conversão segura de data
         const dataEmp = new Date(e.data_emprestimo + "T00:00:00"); 
         const prazo = new Date(dataEmp.getTime() + 7 * 24 * 60 * 60 * 1000);
         
@@ -97,7 +93,6 @@ const Perfil = () => {
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
-            {/* Título */}
             <Box mb={4} display="flex" alignItems="center" gap={2}>
                 <AccountCircleIcon color="primary" sx={{ fontSize: 40 }} />
                 <Typography variant="h4" component="h1" fontWeight="bold" color="primary">
@@ -109,7 +104,6 @@ const Perfil = () => {
 
             <Grid container spacing={4}>
                 
-                {/* === COLUNA DA ESQUERDA: Cartão do Utilizador === */}
                 <Grid item xs={12} md={4}>
                     <Paper elevation={3} sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
                         <Avatar 
@@ -154,7 +148,6 @@ const Perfil = () => {
                     </Paper>
                 </Grid>
 
-                {/* === COLUNA DA DIREITA: Histórico de Empréstimos === */}
                 <Grid item xs={12} md={8}>
                     <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
                         <Typography variant="h6" fontWeight="bold" gutterBottom display="flex" alignItems="center" gap={1}>
